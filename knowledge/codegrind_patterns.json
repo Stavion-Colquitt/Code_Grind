@@ -1,0 +1,53 @@
+{
+  "title": "Algorithm Patterns Reference",
+  "sections": [
+    {
+      "title": "Two Pointers",
+      "content": "Use when: sorted array, pair search, palindrome check, array partitioning. Two pointers converge from edges or advance from start. Variants: converging (palindrome, container with most water), same-direction (remove duplicates), fast/slow (cycle detection). Time: O(n). Space: O(1). Recognition signal: 'sorted array' + 'pair' or 'find two elements'. Code Grind challenges: Reverse In Place (#23), Valid Palindrome (#12), Merge Sorted (#27)."
+    },
+    {
+      "title": "Sliding Window",
+      "content": "Use when: contiguous subarray/substring of size k, or variable-length window with constraint. Fixed window: compute once, slide by add/subtract. Variable window: expand right always, contract left when constraint violated. Time: O(n). Space: O(1) or O(k). Recognition signal: 'contiguous', 'subarray of size k', 'longest substring'. Code Grind challenges: Max Subarray Sum K (#8), Longest Substring Without Repeating (#32), Moving Average Filter (#16). Audio connection: Moving average, envelope follower, AGC all use sliding windows."
+    },
+    {
+      "title": "Hash Map / Frequency Counting",
+      "content": "Use when: need O(1) lookup, counting occurrences, grouping by key, finding complements. Pattern: store seen values or frequencies, look up complements. Time: O(n). Space: O(n). Recognition signal: 'count', 'frequency', 'two sum', 'group', 'anagram', 'unique'. Code Grind challenges: Two Sum Optimized (#7), Frequency Counter (#25), Is Anagram (#24), Group Anagrams (#49), First Unique Character (#55). The single most common pattern in coding interviews."
+    },
+    {
+      "title": "Binary Search",
+      "content": "Use when: sorted array, monotonic function, minimize/maximize with constraint. Not just for finding elements — works on any monotonic condition. Template: l=0, r=n-1, while l<=r, check mid, adjust l=mid+1 or r=mid-1. Time: O(log n). Space: O(1). Recognition signal: 'sorted', 'find first/last', 'minimize maximum', 'search'. Code Grind challenge: Binary Search (#28). Common mistakes: l<=r vs l<r, mid calculation overflow (use l+(r-l)/2)."
+    },
+    {
+      "title": "DFS (Depth-First Search)",
+      "content": "Use when: tree/graph traversal, path finding, exhaustive search, backtracking. Uses recursion or explicit stack. Three tree variants: pre-order (root,L,R), in-order (L,root,R), post-order (L,R,root). On grids: mark visited, explore 4 directions. Time: O(V+E). Space: O(V). Recognition signal: 'all paths', 'connected components', 'tree traversal', 'explore'. Code Grind challenges: In-Order (#11), Number of Islands (#58), Invert Binary Tree (#33)."
+    },
+    {
+      "title": "BFS (Breadth-First Search)",
+      "content": "Use when: shortest path in unweighted graph, level-order processing. Uses queue. Process all nodes at distance d before distance d+1. Time: O(V+E). Space: O(V). Recognition signal: 'shortest path', 'minimum steps', 'level by level'. Code Grind challenges: Level-Order (#14), Graph BFS Distance (#36). BFS guarantees shortest path; DFS does not."
+    },
+    {
+      "title": "Dynamic Programming",
+      "content": "Use when: overlapping subproblems + optimal substructure. Approach: define state, find recurrence relation, identify base cases, implement bottom-up or top-down with memoization. Bottom-up avoids recursion overhead. Common patterns: 1D array (climbing stairs, coin change), 2D table (LCS, edit distance), space-optimized (only need previous row). Time: depends on state space. Recognition signal: 'minimum cost', 'number of ways', 'can you reach', 'optimal'. Code Grind challenges: Climbing Stairs (#15), Fibonacci (#31), Coin Change (#35), LCS (#57), Kadane's (#54)."
+    },
+    {
+      "title": "Stack",
+      "content": "Use when: nested matching, monotonic sequences, undo operations, expression evaluation. LIFO order. Monotonic stack: maintain sorted order for next-greater/next-smaller problems. Time: O(n) amortized. Recognition signal: 'matching parentheses', 'nested', 'next greater element', 'undo'. Code Grind challenges: Valid Parentheses (#26), Min Stack (#37), Queue from Stacks (#56)."
+    },
+    {
+      "title": "Tree Recursion",
+      "content": "Use when: tree structure problems. Pattern: base case (null node), recursive case (process current + recurse children). Return values propagate bottom-up. Pass constraints top-down via parameters. Time: O(n). Space: O(h) where h = height. Code Grind challenges: Max Depth (#10), Path Sum (#53), Validate BST (#34), LCA (#59). Key insight: most tree problems reduce to 'what info do I need from my children?'"
+    },
+    {
+      "title": "Divide and Conquer",
+      "content": "Use when: problem naturally splits in half. Pattern: split, solve halves recursively, combine results. Merge sort is the canonical example. Time: usually O(n log n). Recognition signal: 'sort', 'closest pair', 'count inversions'. Code Grind challenge: Merge Sort (#52)."
+    },
+    {
+      "title": "Prefix Sum",
+      "content": "Use when: frequent range sum queries. Precompute cumulative sums. Any subarray sum = prefix[j] - prefix[i-1] in O(1). Time: O(n) precompute, O(1) per query. Code Grind challenge: Running Sum (#44). Audio connection: Running energy computation, cumulative signal statistics."
+    },
+    {
+      "title": "Topological Sort",
+      "content": "Use when: ordering with dependencies, DAG processing. Kahn's algorithm: start with 0 in-degree nodes, process and reduce neighbors' in-degrees. If result size < n, cycle exists. Time: O(V+E). Recognition signal: 'prerequisites', 'build order', 'task scheduling'. Code Grind challenge: Topological Sort (#60)."
+    }
+  ]
+}

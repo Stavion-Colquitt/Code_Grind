@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CODE GRIND</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a; color: #e0e0e0;
+      font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+      min-height: 100vh;
+    }
+    #root { max-width: 760px; margin: 0 auto; padding: 24px; }
+    .hidden { display: none !important; }
+
+    /* Header */
+    .header { margin-bottom: 32px; border-bottom: 1px solid #1a1a1a; padding-bottom: 24px; }
+    .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; position: relative; }
+    .header-btns { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .switch-btn, .logout-btn {
+      background: none; border: 1px solid #333; color: #888;
+      padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 0.7rem;
+      font-family: inherit; letter-spacing: 1px; transition: all 0.2s;
+    }
+    .switch-btn:hover { border-color: #22c55e; color: #22c55e; }
+    .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+    .logo { font-size: 2rem; color: #22c55e; font-weight: bold; }
+    .title {
+      font-size: 1.5rem; font-weight: 700; letter-spacing: 6px;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle { font-size: 0.75rem; color: #555; letter-spacing: 2px; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .stat-card {
+      background: #111; border: 1px solid #1a1a1a; border-radius: 8px;
+      padding: 16px 8px; text-align: center;
+    }
+    .stat-number { font-size: 1.5rem; font-weight: 700; color: #22c55e; }
+    .stat-label { font-size: 0.6rem; color: #555; letter-spacing: 2px; margin-top: 4px; }
+
+    /* Progress bar */
+    .progress-outer { height: 4px; background: #1a1a1a; border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
+    .progress-inner { height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 2px; transition: width 0.5s ease; }
+    .progress-label { font-size: 0.65rem; color: #444; text-align: right; margin-bottom: 24px; }
+
+    /* Next button */
+    .next-btn {
+      width: 100%; padding: 16px; background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #000; border: none; border-radius: 8px; font-size: 0.85rem;
+      font-weight: 700; font-family: inherit; cursor: pointer; margin-bottom: 32px;
+      letter-spacing: 1px;
+    }
+    .next-btn:hover { filter: brightness(1.1); }
+
+    /* Tier sections */
+    .tier-section { margin-bottom: 28px; }
+    .tier-section.locked { opacity: 0.4; }
+    .tier-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 1px solid #1a1a1a;
+    }
+    .tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .tier-name { font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; color: #888; }
+    .tier-count { font-size: 0.7rem; color: #555; margin-left: auto; }
+
+    .challenge-list { display: flex; flex-direction: column; gap: 4px; }
+    .challenge-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: #111; border: 1px solid #1a1a1a; border-radius: 6px;
+      cursor: pointer; font-family: inherit; color: #e0e0e0; font-size: 0.8rem;
+      text-align: left; width: 100%; border-left: 3px solid #333;
+    }
+    .challenge-item:hover:not(:disabled) { background: #1a1a1a; }
+    .challenge-item:disabled { cursor: not-allowed; }
+    .item-icon { font-size: 0.9rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .item-title { font-weight: 600; flex: 1; }
+    .item-cat { font-size: 0.65rem; color: #555; letter-spacing: 1px; }
+    .lc-slot {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: linear-gradient(135deg, #1a1206 0%, #111 100%);
+      border: 1px solid #f59e0b33; border-radius: 6px;
+      cursor: pointer; font-family: inherit; color: #f59e0b; font-size: 0.8rem;
+      text-align: left; width: 100%; border-left: 3px solid #f59e0b;
+      transition: all 0.2s;
+    }
+    .lc-slot:hover:not(:disabled) { background: linear-gradient(135deg, #251c0a 0%, #1a1a1a 100%); border-color: #f59e0b66; }
+    .lc-slot:disabled { cursor: not-allowed; opacity: 0.4; }
+    .lc-slot .item-title { color: #f59e0b; }
+    .lc-slot .item-cat { color: #f59e0b88; }
+    .lc-slot .lc-badge { font-size: 0.5rem; background: #f59e0b22; color: #f59e0b; padding: 1px 6px; border-radius: 3px; letter-spacing: 1px; }
+
+    .reset-btn {
+      background: none; border: 1px solid #333; color: #555; padding: 8px 16px;
+      border-radius: 4px; font-size: 0.65rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 2px; margin: 24px auto 0; display: block;
+    }
+    .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* CHALLENGE VIEW */
+    .challenge-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+    }
+    .back-btn {
+      background: none; border: 1px solid #333; color: #888; padding: 8px 16px;
+      border-radius: 4px; font-size: 0.75rem; font-family: inherit; cursor: pointer;
+    }
+    .back-btn:hover { border-color: #888; color: #ccc; }
+    .tier-badge {
+      padding: 4px 12px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;
+      color: #000; letter-spacing: 2px;
+    }
+    .challenge-card { background: #111; border: 1px solid #1a1a1a; border-radius: 12px; padding: 28px; }
+    .challenge-category { font-size: 0.7rem; color: #888; letter-spacing: 2px; margin-bottom: 8px; }
+    .challenge-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin: 0 0 16px 0; }
+    .challenge-prompt { font-size: 0.85rem; line-height: 1.7; color: #ccc; margin-bottom: 20px; }
+
+    .signature-box {
+      background: #0a0a0a; border: 1px solid #222; border-radius: 6px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .signature-label { font-size: 0.6rem; color: #555; letter-spacing: 2px; margin-bottom: 8px; }
+    .signature-code { color: #22c55e; font-size: 0.85rem; margin: 0; font-family: inherit; white-space: pre-wrap; }
+
+    /* LANGUAGE SELECTOR */
+    .lang-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    .lang-label { font-size: 0.6rem; color: #444; letter-spacing: 2px; font-weight: 700; margin-right: 4px; }
+    .lang-btn {
+      padding: 5px 14px; background: #0a0a0a; border: 1px solid #222; border-radius: 4px;
+      font-size: 0.7rem; font-family: inherit; cursor: pointer; color: #555;
+      letter-spacing: 0.5px; font-weight: 600; transition: all 0.15s;
+    }
+    .lang-btn:hover { border-color: #444; color: #aaa; }
+    .lang-btn.active { border-color: #22c55e; color: #22c55e; background: #051a0a; }
+    .lang-btn.active-py { border-color: #3b82f6; color: #3b82f6; background: #0a1028; }
+    .lang-btn.active-cpp { border-color: #f97316; color: #f97316; background: #1a0f05; }
+    .lang-btn.active-sql { border-color: #a855f7; color: #a855f7; background: #140a20; }
+    .lang-note { font-size: 0.6rem; color: #333; margin-left: auto; font-style: italic; }
+
+    /* CODE EDITOR */
+    .editor-section { margin-bottom: 20px; }
+    .lang-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .lang-btn {
+      background: transparent; border: 1px solid #333; color: #888; padding: 4px 12px;
+      font-family: inherit; font-size: 0.7rem; letter-spacing: 1px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { border-color: #22c55e; color: #22c55e; }
+    .lang-btn.active { background: #22c55e; color: #000; border-color: #22c55e; font-weight: 700; }
+    .lang-btn.lang-js.active { background: #f59e0b; border-color: #f59e0b; }
+    .lang-btn.lang-py.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .lang-btn.lang-cpp.active { background: #ef4444; border-color: #ef4444; color: #fff; }
+    .lang-btn.lang-sql.active { background: #8b5cf6; border-color: #8b5cf6; color: #fff; }
+    .lang-note { font-size: 0.6rem; color: #555; margin-left: 8px; font-style: italic; }
+    .editor-label {
+      font-size: 0.65rem; color: #555; letter-spacing: 2px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .editor-wrap {
+      border: 1px solid #222; border-radius: 6px; background: #0a0a0a;
+      overflow: hidden; transition: border-color 0.2s;
+    }
+    .editor-wrap:focus-within { border-color: #22c55e; }
+    .editor-wrap.has-errors:focus-within { border-color: #ef4444; }
+    .editor-wrap.has-warnings:focus-within { border-color: #f59e0b; }
+    .code-editor {
+      width: 100%; min-height: 200px; background: transparent; color: #4ade80;
+      border: none; padding: 16px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem;
+      line-height: 1.6; resize: vertical; tab-size: 2;
+      outline: none; display: block;
+    }
+    .code-editor::placeholder { color: #333; }
+
+    /* CODE GUIDANCE */
+    .guidance-toggle {
+      display: flex; align-items: center; gap: 6px; user-select: none;
+    }
+    .guidance-toggle label {
+      font-size: 0.6rem; color: #444; letter-spacing: 1px; cursor: pointer;
+    }
+    .guidance-toggle label:hover { color: #888; }
+    .guidance-switch {
+      position: relative; width: 28px; height: 16px; cursor: pointer;
+    }
+    .guidance-switch input { opacity: 0; width: 0; height: 0; }
+    .guidance-slider {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: #222; border-radius: 8px; transition: 0.2s;
+    }
+    .guidance-slider::before {
+      content: ''; position: absolute; height: 12px; width: 12px;
+      left: 2px; bottom: 2px; background: #555; border-radius: 50%;
+      transition: 0.2s;
+    }
+    .guidance-switch input:checked + .guidance-slider { background: #22c55e33; }
+    .guidance-switch input:checked + .guidance-slider::before { transform: translateX(12px); background: #22c55e; }
+    .guidance-footer {
+      border-top: 1px solid #1a1a1a; padding: 8px 14px; font-size: 0.7rem;
+      line-height: 1.6; max-height: 140px; overflow-y: auto;
+      background: #080808;
+    }
+    .guidance-footer:empty { display: none; }
+    .guidance-footer .g-summary {
+      display: flex; gap: 12px; padding-bottom: 4px; margin-bottom: 4px;
+      border-bottom: 1px solid #111; font-size: 0.6rem; letter-spacing: 1px; color: #555;
+    }
+    .g-count-err { color: #ef4444; }
+    .g-count-warn { color: #f59e0b; }
+    .g-count-info { color: #3b82f6; }
+    .guidance-item {
+      display: flex; align-items: flex-start; gap: 8px; padding: 2px 0;
+    }
+    .guidance-item + .guidance-item { border-top: 1px solid #0d0d0d; }
+    .g-icon { flex-shrink: 0; width: 14px; text-align: center; font-size: 0.65rem; }
+    .g-error .g-icon { color: #ef4444; }
+    .g-warn .g-icon { color: #f59e0b; }
+    .g-info .g-icon { color: #3b82f6; }
+    .g-ok .g-icon { color: #22c55e; }
+    .g-msg { color: #666; font-size: 0.68rem; }
+    .g-error .g-msg { color: #fca5a5; }
+    .g-warn .g-msg { color: #fde68a; }
+    .g-info .g-msg { color: #93c5fd; }
+    .g-ok .g-msg { color: #86efac; }
+
+    .editor-actions { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+    .run-btn {
+      padding: 12px 24px; background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #000; border: none; border-radius: 6px; font-size: 0.8rem;
+      font-weight: 700; font-family: inherit; cursor: pointer; letter-spacing: 1px;
+    }
+    .run-btn:hover { filter: brightness(1.1); }
+    .hint-btn, .solve-btn {
+      padding: 10px 20px; background: none; border-radius: 6px;
+      font-size: 0.75rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 1px; font-weight: 600;
+    }
+    .hint-btn { border: 1px solid #f59e0b; color: #f59e0b; }
+    .hint-btn:hover { background: rgba(245, 158, 11, 0.1); }
+    .solve-btn { border: 1px solid #6366f1; color: #6366f1; }
+    .solve-btn:hover { background: rgba(99, 102, 241, 0.1); }
+
+    /* TEST RESULTS */
+    .test-results { margin-bottom: 20px; }
+    .test-results-label { font-size: 0.65rem; color: #555; letter-spacing: 2px; margin-bottom: 10px; }
+    .test-case {
+      display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+      background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 6px;
+      margin-bottom: 6px; font-size: 0.8rem; line-height: 1.5;
+    }
+    .test-pass { border-left: 3px solid #22c55e; }
+    .test-fail { border-left: 3px solid #ef4444; }
+    .test-pending { border-left: 3px solid #333; }
+    .test-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+    .test-detail { flex: 1; }
+    .test-label-text { color: #aaa; }
+    .test-expected { color: #666; font-size: 0.75rem; margin-top: 4px; }
+    .test-got { color: #ef4444; font-size: 0.75rem; margin-top: 2px; }
+    .test-error { color: #ef4444; font-size: 0.75rem; margin-top: 2px; font-style: italic; }
+
+    .all-pass-banner {
+      background: linear-gradient(135deg, #052e16, #064e3b); border: 1px solid #065f46;
+      border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 20px;
+    }
+    .all-pass-text { color: #22c55e; font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; }
+    .all-pass-sub { color: #4ade80; font-size: 0.7rem; margin-top: 4px; }
+
+    /* HINT / SOLUTION */
+    .hint-box {
+      background: #1a1700; border: 1px solid #332d00; border-radius: 8px;
+      padding: 16px; margin-bottom: 20px;
+    }
+    .hint-label { font-size: 0.7rem; font-weight: 700; margin-bottom: 8px; color: #f59e0b; }
+    .hint-text { font-size: 0.82rem; color: #d4c96a; line-height: 1.6; }
+
+    .solution-box {
+      background: #0f0a1e; border: 1px solid #1e1640; border-radius: 8px;
+      padding: 20px; margin-bottom: 20px;
+    }
+    .solution-label { font-size: 0.65rem; color: #6366f1; letter-spacing: 2px; font-weight: 700; margin-bottom: 12px; }
+    .solution-code {
+      color: #a5b4fc; font-size: 0.82rem; font-family: inherit; margin: 0 0 20px 0;
+      line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+    }
+    .concept-box {
+      background: #0a0a1a; border: 1px solid #1a1a3a; border-radius: 6px; padding: 14px;
+    }
+    .concept-label { font-size: 0.6rem; color: #818cf8; letter-spacing: 2px; font-weight: 700; margin-bottom: 8px; }
+    .concept-text { font-size: 0.8rem; color: #9ca3af; line-height: 1.6; }
+
+    .complete-row { display: flex; justify-content: center; gap: 12px; padding-top: 8px; flex-wrap: wrap; }
+    .complete-btn {
+      padding: 14px 28px; background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: #000; border: none; border-radius: 8px; font-size: 0.8rem;
+      font-weight: 700; font-family: inherit; cursor: pointer; letter-spacing: 1px;
+    }
+    .undo-btn {
+      padding: 12px 24px; background: none; border: 1px solid #555; color: #888;
+      border-radius: 8px; font-size: 0.75rem; font-family: inherit; cursor: pointer;
+    }
+
+    /* AI COMPANION */
+    .ai-btn {
+      padding: 10px 20px; background: none; border: 1px solid #8b5cf6; color: #8b5cf6;
+      border-radius: 6px; font-size: 0.75rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 1px; font-weight: 600;
+    }
+    .ai-btn:hover { background: rgba(139, 92, 246, 0.1); }
+    .ai-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ai-btn.loading { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+    .ai-panel {
+      background: #0f0a1e; border: 1px solid #2d1f5e; border-radius: 8px;
+      padding: 20px; margin-bottom: 20px;
+    }
+    .ai-panel-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .ai-icon { font-size: 1rem; }
+    .ai-label { font-size: 0.65rem; color: #8b5cf6; letter-spacing: 2px; font-weight: 700; }
+    .ai-response {
+      font-size: 0.82rem; color: #c4b5fd; line-height: 1.7; white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ai-response code {
+      background: #1a1030; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem;
+      color: #a78bfa;
+    }
+    .ai-response pre {
+      background: #0a0515; border: 1px solid #1a1030; border-radius: 6px;
+      padding: 12px; margin: 10px 0; overflow-x: auto; color: #a78bfa;
+    }
+
+    .ai-mode-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .ai-mode-btn {
+      padding: 6px 14px; background: #1a1030; border: 1px solid #2d1f5e; color: #8b5cf6;
+      border-radius: 4px; font-size: 0.65rem; font-family: inherit; cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .ai-mode-btn:hover { background: #2d1f5e; }
+    .ai-mode-btn.active { background: #8b5cf6; color: #000; font-weight: 700; }
+
+    /* API KEY SETUP */
+    .settings-btn {
+      background: none; border: 1px solid #333; color: #555; width: 32px; height: 32px;
+      border-radius: 6px; cursor: pointer; font-size: 1rem; display: flex;
+      align-items: center; justify-content: center; margin-left: auto; flex-shrink: 0;
+    }
+    .settings-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+    .settings-btn.configured { border-color: #22c55e; color: #22c55e; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); z-index: 100; display: flex;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal {
+      background: #111; border: 1px solid #1a1a1a; border-radius: 12px;
+      padding: 28px; max-width: 480px; width: 100%;
+    }
+    .modal h3 { color: #fff; font-size: 1rem; margin-bottom: 8px; }
+    .modal p { color: #888; font-size: 0.75rem; line-height: 1.6; margin-bottom: 16px; }
+    .modal input {
+      width: 100%; background: #0a0a0a; border: 1px solid #222; border-radius: 6px;
+      padding: 12px; color: #8b5cf6; font-family: inherit; font-size: 0.8rem;
+      margin-bottom: 16px; outline: none;
+    }
+    .modal input:focus { border-color: #8b5cf6; }
+    .modal input::placeholder { color: #333; }
+    .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+    .modal-save {
+      padding: 10px 20px; background: #8b5cf6; color: #000; border: none; border-radius: 6px;
+      font-family: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+    }
+    .modal-cancel {
+      padding: 10px 20px; background: none; border: 1px solid #333; color: #888;
+      border-radius: 6px; font-family: inherit; font-size: 0.75rem; cursor: pointer;
+    }
+    .modal-clear {
+      padding: 10px 20px; background: none; border: 1px solid #ef4444; color: #ef4444;
+      border-radius: 6px; font-family: inherit; font-size: 0.75rem; cursor: pointer;
+      margin-right: auto;
+    }
+
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .challenge-card { padding: 18px; }
+      .code-editor { min-height: 160px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="root">
+  <!-- HOME VIEW -->
+  <div id="home-view">
+    <div class="header">
+      <div class="logo-row">
+        <span class="logo">▸</span>
+        <h1 class="title">CODE GRIND</h1>
+        <button class="settings-btn" id="settings-btn" onclick="openSettings()" title="AI Companion Settings">⚙</button>
+        <div class="header-btns">
+          <button class="switch-btn" onclick="window.location.href='/chat'" title="Switch to PI Chat">🥧 PI</button>
+          <button class="logout-btn" onclick="window.location.href='/login'" title="Logout">LOGOUT</button>
+        </div>
+      </div>
+      <p class="subtitle">Daily coding challenges. Write code. Run tests. No IDE.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-number" id="solved-count">0</div><div class="stat-label">SOLVED</div></div>
+      <div class="stat-card"><div class="stat-number" id="remaining-count">0</div><div class="stat-label">REMAINING</div></div>
+      <div class="stat-card"><div class="stat-number" id="streak-count" style="color:#555">0</div><div class="stat-label">DAY STREAK</div></div>
+      <div class="stat-card"><div class="stat-number" id="tier-display">T1</div><div class="stat-label">CURRENT TIER</div></div>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" id="progress-bar" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">0% complete</div>
+    <button class="next-btn" id="next-btn" onclick="openNextChallenge()">▸ LOADING...</button>
+    <div id="tier-list"></div>
+    <button class="reset-btn hidden" id="reset-btn" onclick="resetAll()">RESET ALL PROGRESS</button>
+  </div>
+
+  <!-- CHALLENGE VIEW -->
+  <div id="challenge-view" class="hidden">
+    <div class="challenge-header">
+      <button class="back-btn" onclick="showHome()">← BACK</button>
+      <span class="tier-badge" id="ch-tier-badge">TIER 1</span>
+    </div>
+    <div class="challenge-card">
+      <div class="challenge-category" id="ch-category"></div>
+      <h2 class="challenge-title" id="ch-title"></h2>
+      <p class="challenge-prompt" id="ch-prompt"></p>
+
+      <div class="signature-box">
+        <div class="signature-label">FUNCTION SIGNATURE</div>
+        <pre class="signature-code" id="ch-signature"></pre>
+      </div>
+
+      <!-- LANGUAGE SELECTOR -->
+      <div class="lang-row" id="lang-row"></div>
+
+      <!-- CODE EDITOR -->
+      <div class="editor-section">
+        <div class="lang-row" id="lang-row"></div>
+        <div class="editor-label">
+          <span>YOUR CODE <span id="lang-label" style="color:#22c55e"></span></span>
+          <div class="guidance-toggle">
+            <label class="guidance-switch" title="Toggle real-time code guidance">
+              <input type="checkbox" id="guidance-toggle" onchange="toggleGuidance(this.checked)">
+              <span class="guidance-slider"></span>
+            </label>
+            <label for="guidance-toggle" style="cursor:pointer">GUIDANCE</label>
+          </div>
+        </div>
+        <div class="editor-wrap" id="editor-wrap">
+          <textarea class="code-editor" id="code-editor" spellcheck="false" placeholder="Write your solution here..."></textarea>
+          <div class="guidance-footer" id="guidance-panel"></div>
+        </div>
+        <div class="editor-actions">
+          <button class="run-btn" id="run-btn" onclick="runTests()">▸ RUN TESTS</button>
+          <button class="ai-btn" id="ai-btn" onclick="askAI()" title="AI code review">⚡ ASK AI</button>
+          <button class="hint-btn" id="hint-btn" onclick="showHint()">HINT</button>
+          <button class="solve-btn" id="solve-btn" onclick="showSolution()">SHOW SOLUTION</button>
+        </div>
+      </div>
+
+      <!-- TEST RESULTS -->
+      <div class="test-results hidden" id="test-results">
+        <div class="test-results-label">TEST RESULTS</div>
+        <div id="test-list"></div>
+      </div>
+
+      <div class="all-pass-banner hidden" id="all-pass">
+        <div class="all-pass-text">✓ ALL TESTS PASSED</div>
+        <div class="all-pass-sub">Nice work. Mark it complete or keep refining.</div>
+      </div>
+
+      <!-- AI COMPANION -->
+      <div class="ai-panel hidden" id="ai-panel">
+        <div class="ai-panel-header">
+          <span class="ai-icon">⚡</span>
+          <span class="ai-label">AI COMPANION</span>
+        </div>
+        <div class="ai-mode-row" id="ai-mode-row">
+          <button class="ai-mode-btn active" data-mode="review" onclick="setAIMode('review',this)">CODE REVIEW</button>
+          <button class="ai-mode-btn" data-mode="explain" onclick="setAIMode('explain',this)">EXPLAIN LOGIC</button>
+          <button class="ai-mode-btn" data-mode="optimize" onclick="setAIMode('optimize',this)">OPTIMIZE</button>
+          <button class="ai-mode-btn" data-mode="interview" onclick="setAIMode('interview',this)">INTERVIEW PREP</button>
+        </div>
+        <div class="ai-response" id="ai-response"></div>
+      </div>
+
+      <!-- HINT -->
+      <div class="hint-box hidden" id="hint-box">
+        <div class="hint-label">💡 HINT</div>
+        <p class="hint-text" id="ch-hint"></p>
+      </div>
+
+      <!-- SOLUTION -->
+      <div class="solution-box hidden" id="solution-box">
+        <div class="solution-label">REFERENCE SOLUTION</div>
+        <pre class="solution-code" id="ch-solution"></pre>
+        <div class="concept-box">
+          <div class="concept-label">WHY THIS MATTERS</div>
+          <p class="concept-text" id="ch-concept"></p>
+        </div>
+      </div>
+
+      <div class="complete-row" id="complete-row">
+        <button class="complete-btn" id="complete-btn" onclick="toggleComplete()">✓ MARK COMPLETE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal-overlay hidden" id="key-modal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⚡ AI Companion Setup</h3>
+    <p>Connect to your Code Grind server — includes RAG knowledge base, DeepSeek for code, Claude for interviews.</p>
+    
+    <div style="font-size:0.6rem;color:#8b5cf6;letter-spacing:1px;margin-bottom:6px;font-weight:700">SERVER URL</div>
+    <input type="text" id="backend-url-input" placeholder="http://your-pi:3100" autocomplete="off" style="margin-bottom:12px">
+    <button class="modal-save" id="test-backend-btn" onclick="testBackend()" style="margin-bottom:16px;background:#1a1030;color:#8b5cf6;border:1px solid #2d1f5e;width:100%;font-size:0.65rem">TEST CONNECTION</button>
+    <div id="backend-status" style="font-size:0.7rem;margin-bottom:16px;min-height:1.2em"></div>
+
+    <div style="font-size:0.6rem;color:#444;letter-spacing:1px;margin-bottom:6px;font-weight:700;border-top:1px solid #222;padding-top:12px">FALLBACK: DIRECT BROWSER API</div>
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-... or sk-..." autocomplete="off">
+    <p style="font-size:0.65rem;color:#444;margin-top:4px">Used when server is unavailable. No RAG — calls API directly from browser.</p>
+    
+    <div class="modal-actions">
+      <button class="modal-clear hidden" id="modal-clear-btn" onclick="clearSettings()">CLEAR ALL</button>
+      <button class="modal-cancel" onclick="closeSettings()">CANCEL</button>
+      <button class="modal-save" onclick="saveSettings()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CHALLENGES — each has executable tests
+// ============================================================
+const C = [
+// TIER 1
+{id:1,t:1,cat:"Variables & Logic",title:"Swap Two Variables",
+prompt:"Write a function that swaps two variables WITHOUT using a third variable. Return them as an array [b, a].",
+sig:"function swap(a, b) { }",
+hint:"Think about arithmetic: addition and subtraction can store information temporarily.",
+solution:`function swap(a, b) {
+  a = a + b;
+  b = a - b;
+  a = a - b;
+  return [a, b];
+}`,
+concept:"Variables are just containers. You can encode multiple values temporarily using math.",
+tests:[
+  {call:"swap(3, 7)",expect:[7,3]},
+  {call:"swap(0, 5)",expect:[5,0]},
+  {call:"swap(-1, 1)",expect:[1,-1]}
+]},
+
+{id:2,t:1,cat:"Arrays",title:"Find the Maximum",
+prompt:"Write a function that finds the largest number in an array WITHOUT using Math.max. Return the largest number.",
+sig:"function findMax(arr) { }",
+hint:"Assume the first element is largest, then compare as you walk through.",
+solution:`function findMax(arr) {
+  let max = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] > max) max = arr[i];
+  }
+  return max;
+}`,
+concept:"Linear scan — visit every element once. O(n) time. You'll use this pattern constantly.",
+tests:[
+  {call:"findMax([3, 1, 7, 2, 9, 4])",expect:9},
+  {call:"findMax([-5, -1, -8])",expect:-1},
+  {call:"findMax([42])",expect:42}
+]},
+
+{id:3,t:1,cat:"Strings",title:"Reverse a String",
+prompt:"Reverse a string WITHOUT using .reverse(). Return the reversed string.",
+sig:"function reverseStr(s) { }",
+hint:"Build a new string reading backwards, or swap from outside in.",
+solution:`function reverseStr(s) {
+  let result = '';
+  for (let i = s.length - 1; i >= 0; i--) result += s[i];
+  return result;
+}`,
+concept:"Iterating backwards. Simple but foundational — reversal shows up in linked lists, trees, and more.",
+tests:[
+  {call:'reverseStr("hello")',expect:"olleh"},
+  {call:'reverseStr("a")',expect:"a"},
+  {call:'reverseStr("racecar")',expect:"racecar"}
+]},
+
+{id:4,t:1,cat:"Arrays",title:"Count Occurrences",
+prompt:"Count how many times a target value appears in an array.",
+sig:"function countOccurrences(arr, target) { }",
+hint:"Initialize counter at 0, walk array, increment on match.",
+solution:`function countOccurrences(arr, target) {
+  let count = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) count++;
+  }
+  return count;
+}`,
+concept:"Accumulator pattern — running tally as you iterate. Basis of frequency counting.",
+tests:[
+  {call:"countOccurrences([1,3,3,7,3,2], 3)",expect:3},
+  {call:"countOccurrences([1,2,3], 5)",expect:0},
+  {call:"countOccurrences([7,7,7], 7)",expect:3}
+]},
+
+{id:5,t:1,cat:"Logic",title:"FizzBuzz",
+prompt:"Return array 1 to n: multiples of 3→'Fizz', 5→'Buzz', both→'FizzBuzz', else the number.",
+sig:"function fizzBuzz(n) { }",
+hint:"Check divisible-by-15 first, then 3, then 5, then default.",
+solution:`function fizzBuzz(n) {
+  const result = [];
+  for (let i = 1; i <= n; i++) {
+    if (i % 15 === 0) result.push('FizzBuzz');
+    else if (i % 3 === 0) result.push('Fizz');
+    else if (i % 5 === 0) result.push('Buzz');
+    else result.push(i);
+  }
+  return result;
+}`,
+concept:"Conditional logic + modulo. Order of if/else matters — most specific first.",
+tests:[
+  {call:"fizzBuzz(5)",expect:[1,2,'Fizz',4,'Buzz']},
+  {call:"fizzBuzz(15)[14]",expect:'FizzBuzz'},
+  {call:"fizzBuzz(1)",expect:[1]}
+]},
+
+{id:6,t:1,cat:"Arrays",title:"Two Sum (Brute Force)",
+prompt:"Find TWO indices whose values add to target. Return [i, j]. Exactly one solution exists.",
+sig:"function twoSum(nums, target) { }",
+hint:"Check every pair with nested loops.",
+solution:`function twoSum(nums, target) {
+  for (let i = 0; i < nums.length; i++)
+    for (let j = i + 1; j < nums.length; j++)
+      if (nums[i] + nums[j] === target) return [i, j];
+}`,
+concept:"Nested loop brute force — O(n²). In Tier 2 you'll do this in O(n) with a hash map.",
+tests:[
+  {call:"twoSum([2,7,11,15], 9)",expect:[0,1]},
+  {call:"twoSum([3,2,4], 6)",expect:[1,2]},
+  {call:"twoSum([1,5,3,7], 12)",expect:[1,3]}
+]},
+
+{id:19,t:1,cat:"Arrays",title:"Sum of Array",
+prompt:"Return the sum of all numbers. No .reduce().",
+sig:"function sumArray(arr) { }",
+hint:"Accumulator starts at 0, add each element.",
+solution:`function sumArray(arr) {
+  let sum = 0;
+  for (let i = 0; i < arr.length; i++) sum += arr[i];
+  return sum;
+}`,
+concept:"Accumulator pattern. Identical to counting but adding values.",
+tests:[
+  {call:"sumArray([1,2,3,4,5])",expect:15},
+  {call:"sumArray([-1,1])",expect:0},
+  {call:"sumArray([100])",expect:100}
+]},
+
+{id:20,t:1,cat:"Strings",title:"Count Vowels",
+prompt:"Count vowels (a,e,i,o,u) in a string. Case insensitive.",
+sig:"function countVowels(s) { }",
+hint:"Lowercase first, check against vowel set.",
+solution:`function countVowels(s) {
+  const v = 'aeiou'; let c = 0;
+  s = s.toLowerCase();
+  for (let i = 0; i < s.length; i++) if (v.includes(s[i])) c++;
+  return c;
+}`,
+concept:"Membership testing — simplified hash map lookup.",
+tests:[
+  {call:'countVowels("Hello World")',expect:3},
+  {call:'countVowels("AEIOU")',expect:5},
+  {call:'countVowels("xyz")',expect:0}
+]},
+
+{id:21,t:1,cat:"Arrays",title:"Remove Duplicates",
+prompt:"Return new array with duplicates removed. Preserve order. No Set.",
+sig:"function removeDuplicates(arr) { }",
+hint:"Build result array, check if element already present before pushing.",
+solution:`function removeDuplicates(arr) {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    let found = false;
+    for (let j = 0; j < result.length; j++)
+      if (result[j] === arr[i]) { found = true; break; }
+    if (!found) result.push(arr[i]);
+  }
+  return result;
+}`,
+concept:"O(n²) brute force. Tier 2: O(n) with a hash set.",
+tests:[
+  {call:"removeDuplicates([1,2,2,3,1,4])",expect:[1,2,3,4]},
+  {call:"removeDuplicates([5,5,5])",expect:[5]},
+  {call:"removeDuplicates([1,2,3])",expect:[1,2,3]}
+]},
+
+{id:22,t:1,cat:"Logic",title:"Factorial",
+prompt:"Calculate n! using a loop. 0!=1, 5!=120.",
+sig:"function factorial(n) { }",
+hint:"Product accumulator from 1 to n.",
+solution:`function factorial(n) {
+  if (n === 0) return 1;
+  let r = 1;
+  for (let i = 1; i <= n; i++) r *= i;
+  return r;
+}`,
+concept:"Product accumulator. Shows up in permutations/combinations.",
+tests:[
+  {call:"factorial(5)",expect:120},
+  {call:"factorial(0)",expect:1},
+  {call:"factorial(1)",expect:1}
+]},
+
+{id:23,t:1,cat:"Arrays",title:"Reverse Array In Place",
+prompt:"Reverse array IN PLACE (modify original). Return it.",
+sig:"function reverseInPlace(arr) { }",
+hint:"Two pointers swapping from edges inward.",
+solution:`function reverseInPlace(arr) {
+  let l = 0, r = arr.length - 1;
+  while (l < r) {
+    const t = arr[l]; arr[l] = arr[r]; arr[r] = t;
+    l++; r--;
+  }
+  return arr;
+}`,
+concept:"In-place reversal — O(n) time, O(1) space. Used in linked lists, palindromes, partitioning.",
+tests:[
+  {call:"reverseInPlace([1,2,3,4,5])",expect:[5,4,3,2,1]},
+  {call:"reverseInPlace([1])",expect:[1]},
+  {call:"reverseInPlace([1,2])",expect:[2,1]}
+]},
+
+{id:24,t:1,cat:"Strings",title:"Is Anagram",
+prompt:"Check if two strings are anagrams. Case insensitive.",
+sig:"function isAnagram(s1, s2) { }",
+hint:"Count letter frequencies in both. If they match, anagram.",
+solution:`function isAnagram(s1, s2) {
+  s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
+  if (s1.length !== s2.length) return false;
+  const c = {};
+  for (let i = 0; i < s1.length; i++) c[s1[i]] = (c[s1[i]]||0)+1;
+  for (let i = 0; i < s2.length; i++) { if (!c[s2[i]]) return false; c[s2[i]]--; }
+  return true;
+}`,
+concept:"Frequency counting with an object — this IS a hash map.",
+tests:[
+  {call:'isAnagram("listen","silent")',expect:true},
+  {call:'isAnagram("hello","world")',expect:false},
+  {call:'isAnagram("Dormitory","dirty room")',expect:false}
+]},
+
+{id:41,t:1,cat:"Arrays",title:"Find Second Largest",
+prompt:"Find the second largest number. Don't sort.",
+sig:"function secondLargest(arr) { }",
+hint:"Track largest and second largest as you scan.",
+solution:`function secondLargest(arr) {
+  let f = -Infinity, s = -Infinity;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] > f) { s = f; f = arr[i]; }
+    else if (arr[i] > s && arr[i] !== f) s = arr[i];
+  }
+  return s;
+}`,
+concept:"Tracking multiple running values in one pass.",
+tests:[
+  {call:"secondLargest([3,1,7,5,9,2])",expect:7},
+  {call:"secondLargest([10,20])",expect:10},
+  {call:"secondLargest([1,1,2])",expect:1}
+]},
+
+{id:42,t:1,cat:"Strings",title:"Capitalize Words",
+prompt:"Capitalize first letter of each word.",
+sig:"function capitalizeWords(s) { }",
+hint:"Boolean flag tracking start of new word.",
+solution:`function capitalizeWords(s) {
+  let r = '', cap = true;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === ' ') { r += ' '; cap = true; }
+    else if (cap) { r += s[i].toUpperCase(); cap = false; }
+    else r += s[i];
+  }
+  return r;
+}`,
+concept:"State machine pattern — boolean flag tracks word boundaries.",
+tests:[
+  {call:'capitalizeWords("hello world")',expect:"Hello World"},
+  {call:'capitalizeWords("a b c")',expect:"A B C"},
+  {call:'capitalizeWords("already Capital")',expect:"Already Capital"}
+]},
+
+{id:43,t:1,cat:"Arrays",title:"Array Intersection",
+prompt:"Return elements common to both arrays (with duplicates matching both).",
+sig:"function intersect(a, b) { }",
+hint:"Count frequency in one, consume from other.",
+solution:`function intersect(a, b) {
+  const c = {};
+  for (const x of a) c[x] = (c[x]||0)+1;
+  const r = [];
+  for (const x of b) { if (c[x] > 0) { r.push(x); c[x]--; } }
+  return r;
+}`,
+concept:"Frequency count for intersection — O(n+m).",
+tests:[
+  {call:"intersect([1,2,2,3],[2,2,4])",expect:[2,2]},
+  {call:"intersect([1,2],[3,4])",expect:[]},
+  {call:"intersect([1],[1,1])",expect:[1]}
+]},
+
+{id:44,t:1,cat:"Arrays",title:"Running Sum",
+prompt:"Each element = sum of all elements up to that index (prefix sum).",
+sig:"function runningSum(arr) { }",
+hint:"Each element = previous running sum + current.",
+solution:`function runningSum(arr) {
+  const r = [arr[0]];
+  for (let i = 1; i < arr.length; i++) r.push(r[i-1]+arr[i]);
+  return r;
+}`,
+concept:"Prefix sum — compute any subarray sum in O(1) after O(n) preprocessing.",
+tests:[
+  {call:"runningSum([1,2,3,4])",expect:[1,3,6,10]},
+  {call:"runningSum([5])",expect:[5]},
+  {call:"runningSum([1,1,1,1,1])",expect:[1,2,3,4,5]}
+]},
+
+{id:45,t:1,cat:"Logic",title:"Find Missing Number",
+prompt:"Array has n distinct numbers from 0 to n. Find the missing one.",
+sig:"function missingNumber(nums) { }",
+hint:"Sum of 0..n is n*(n+1)/2. Subtract actual sum.",
+solution:`function missingNumber(nums) {
+  const n = nums.length;
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += nums[i];
+  return n*(n+1)/2 - sum;
+}`,
+concept:"Math insight — O(n) time, O(1) space. Gauss's formula.",
+tests:[
+  {call:"missingNumber([3,0,1])",expect:2},
+  {call:"missingNumber([0,1])",expect:2},
+  {call:"missingNumber([0])",expect:1}
+]},
+
+{id:46,t:1,cat:"Logic",title:"Power of Two",
+prompt:"Is the number a power of 2? Handle n <= 0.",
+sig:"function isPowerOfTwo(n) { }",
+hint:"Divide by 2 repeatedly. Or bit trick: n & (n-1) === 0.",
+solution:`function isPowerOfTwo(n) {
+  if (n <= 0) return false;
+  return (n & (n - 1)) === 0;
+}`,
+concept:"Powers of 2: buffer sizes, FFT lengths. Bit trick uses binary representation.",
+tests:[
+  {call:"isPowerOfTwo(16)",expect:true},
+  {call:"isPowerOfTwo(6)",expect:false},
+  {call:"isPowerOfTwo(0)",expect:false},
+  {call:"isPowerOfTwo(1)",expect:true}
+]},
+
+{id:47,t:1,cat:"Arrays",title:"Rotate Array",
+prompt:"Rotate right by k positions in place. [1,2,3,4,5] k=2 → [4,5,1,2,3].",
+sig:"function rotateArray(arr, k) { }",
+hint:"Triple reverse: whole array, first k, rest.",
+solution:`function rotateArray(arr, k) {
+  k = k % arr.length;
+  function rev(s,e) { while(s<e){const t=arr[s];arr[s]=arr[e];arr[e]=t;s++;e--;} }
+  rev(0, arr.length-1); rev(0, k-1); rev(k, arr.length-1);
+  return arr;
+}`,
+concept:"Triple-reverse trick — O(n) time, O(1) space.",
+tests:[
+  {call:"rotateArray([1,2,3,4,5], 2)",expect:[4,5,1,2,3]},
+  {call:"rotateArray([1,2,3], 1)",expect:[3,1,2]},
+  {call:"rotateArray([1,2], 3)",expect:[2,1]}
+]},
+
+{id:48,t:1,cat:"Strings",title:"Compress String",
+prompt:"Run-length encode: 'aabcccccaaa'→'a2b1c5a3'. Return original if not shorter.",
+sig:"function compress(s) { }",
+hint:"Count consecutive chars. When char changes, append char+count.",
+solution:`function compress(s) {
+  let r = '', c = 1;
+  for (let i = 0; i < s.length; i++) {
+    if (i+1 < s.length && s[i] === s[i+1]) c++;
+    else { r += s[i] + c; c = 1; }
+  }
+  return r.length < s.length ? r : s;
+}`,
+concept:"Run-length encoding — real compression used in audio and images.",
+tests:[
+  {call:'compress("aabcccccaaa")',expect:"a2b1c5a3"},
+  {call:'compress("abc")',expect:"abc"},
+  {call:'compress("aaa")',expect:"a3"}
+]},
+
+// TIER 2
+{id:7,t:2,cat:"Hash Maps",title:"Two Sum (Optimized)",
+prompt:"Two Sum in O(n) using a hash map. Return [i, j].",
+sig:"function twoSumFast(nums, target) { }",
+hint:"For each num, check if (target - num) was already seen.",
+solution:`function twoSumFast(nums, target) {
+  const map = {};
+  for (let i = 0; i < nums.length; i++) {
+    const c = target - nums[i];
+    if (map[c] !== undefined) return [map[c], i];
+    map[nums[i]] = i;
+  }
+}`,
+concept:"Hash map trades space for time — O(1) lookup. THE optimization pattern.",
+tests:[
+  {call:"twoSumFast([2,7,11,15], 9)",expect:[0,1]},
+  {call:"twoSumFast([3,2,4], 6)",expect:[1,2]}
+]},
+
+{id:8,t:2,cat:"Sliding Window",title:"Max Subarray Sum K",
+prompt:"Max sum of any contiguous subarray of size k.",
+sig:"function maxSubarraySum(arr, k) { }",
+hint:"First window sum, then slide: subtract leaving, add entering.",
+solution:`function maxSubarraySum(arr, k) {
+  let ws = 0;
+  for (let i = 0; i < k; i++) ws += arr[i];
+  let mx = ws;
+  for (let i = k; i < arr.length; i++) { ws += arr[i]-arr[i-k]; mx = Math.max(mx,ws); }
+  return mx;
+}`,
+concept:"Sliding window — maintain running sum. Like a moving average on audio.",
+tests:[
+  {call:"maxSubarraySum([2,1,5,1,3,2], 3)",expect:9},
+  {call:"maxSubarraySum([1,2,3,4], 2)",expect:7}
+]},
+
+{id:9,t:2,cat:"Binary Trees",title:"Binary Tree Node",
+prompt:"Create TreeNode class (val, left, right). Build tree: root=1, left=2, right=3, left.left=4, left.right=5.",
+sig:"class TreeNode { }\nfunction buildTree() { }",
+hint:"Constructor sets val, left=null, right=null. Wire manually.",
+solution:`class TreeNode {
+  constructor(val) { this.val=val; this.left=null; this.right=null; }
+}
+function buildTree() {
+  const r = new TreeNode(1);
+  r.left = new TreeNode(2); r.right = new TreeNode(3);
+  r.left.left = new TreeNode(4); r.left.right = new TreeNode(5);
+  return r;
+}`,
+concept:"Binary tree = nodes pointing to nodes. Foundation for every tree problem.",
+tests:[
+  {call:"buildTree().val",expect:1},
+  {call:"buildTree().left.val",expect:2},
+  {call:"buildTree().left.right.val",expect:5}
+]},
+
+{id:10,t:2,cat:"Binary Trees",title:"Max Depth",
+prompt:"Maximum depth of a binary tree. Empty=0, single node=1.",
+sig:"function maxDepth(root) { }",
+hint:"Recursion: 1 + max(left depth, right depth). Null→0.",
+solution:`function maxDepth(root) {
+  if (!root) return 0;
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+}`,
+concept:"Tree recursion — decompose into subtrees.",
+tests:[
+  {call:"maxDepth(buildTree())",expect:3},
+  {call:"maxDepth(null)",expect:0},
+  {call:"maxDepth(new TreeNode(1))",expect:1}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}\nfunction buildTree(){const r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);return r;}"},
+
+{id:11,t:2,cat:"Binary Trees",title:"In-Order Traversal",
+prompt:"Return values from in-order traversal (left, root, right).",
+sig:"function inOrder(root) { }",
+hint:"Recurse left, push val, recurse right.",
+solution:`function inOrder(root) {
+  const r = [];
+  function go(n) { if(!n)return; go(n.left); r.push(n.val); go(n.right); }
+  go(root); return r;
+}`,
+concept:"In-order visits BST in sorted order.",
+tests:[
+  {call:"inOrder(buildTree())",expect:[4,2,5,1,3]}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}\nfunction buildTree(){const r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);return r;}"},
+
+{id:12,t:2,cat:"Two Pointers",title:"Valid Palindrome",
+prompt:"Is string a palindrome? Ignore non-alphanumeric, case insensitive.",
+sig:"function isPalindrome(s) { }",
+hint:"Two pointers converging. Skip non-alnum, compare lowercase.",
+solution:`function isPalindrome(s) {
+  s = s.toLowerCase().replace(/[^a-z0-9]/g,'');
+  let l=0, r=s.length-1;
+  while(l<r) { if(s[l]!==s[r]) return false; l++; r--; }
+  return true;
+}`,
+concept:"Two pointer converging — O(n) time, O(1) space.",
+tests:[
+  {call:'isPalindrome("A man, a plan, a canal: Panama")',expect:true},
+  {call:'isPalindrome("hello")',expect:false},
+  {call:'isPalindrome("racecar")',expect:true}
+]},
+
+{id:25,t:2,cat:"Hash Maps",title:"Frequency Counter",
+prompt:"Return object: keys=elements, values=count of appearances.",
+sig:"function frequency(arr) { }",
+hint:"Loop, increment or initialize to 1.",
+solution:`function frequency(arr) {
+  const f = {};
+  for (const x of arr) f[x] = (f[x]||0)+1;
+  return f;
+}`,
+concept:"Frequency maps: foundation of hash map problems.",
+tests:[
+  {call:"frequency(['a','b','a','c','b','a'])",expect:{a:3,b:2,c:1}},
+  {call:"frequency([1,1,1])",expect:{1:3}}
+]},
+
+{id:26,t:2,cat:"Stacks",title:"Valid Parentheses",
+prompt:"Is the bracket string valid? (){}[] must match correctly.",
+sig:"function isValid(s) { }",
+hint:"Stack: push opens, pop+match on close.",
+solution:`function isValid(s) {
+  const st=[], m={')':'(','}':'{',']':'['};
+  for(const c of s){
+    if('({['.includes(c)) st.push(c);
+    else if(st.pop()!==m[c]) return false;
+  }
+  return st.length===0;
+}`,
+concept:"Stack = LIFO. Perfect for nested matching.",
+tests:[
+  {call:'isValid("({[]})")',expect:true},
+  {call:'isValid("([)]")',expect:false},
+  {call:'isValid("")',expect:true}
+]},
+
+{id:27,t:2,cat:"Sorting",title:"Merge Sorted Arrays",
+prompt:"Merge two sorted arrays into one sorted array. No .sort().",
+sig:"function mergeSorted(a, b) { }",
+hint:"Two pointers, push smaller. Handle leftovers.",
+solution:`function mergeSorted(a, b) {
+  const r=[]; let i=0,j=0;
+  while(i<a.length&&j<b.length) a[i]<=b[j]?r.push(a[i++]):r.push(b[j++]);
+  while(i<a.length) r.push(a[i++]);
+  while(j<b.length) r.push(b[j++]);
+  return r;
+}`,
+concept:"Merge step of merge sort. O(n+m). Two pointers on two arrays.",
+tests:[
+  {call:"mergeSorted([1,3,5],[2,4,6])",expect:[1,2,3,4,5,6]},
+  {call:"mergeSorted([],[1,2])",expect:[1,2]}
+]},
+
+{id:28,t:2,cat:"Binary Search",title:"Binary Search",
+prompt:"Find index of target in SORTED array. Return -1 if not found.",
+sig:"function binarySearch(arr, target) { }",
+hint:"Left/right pointers, check middle, halve search space.",
+solution:`function binarySearch(arr, target) {
+  let l=0, r=arr.length-1;
+  while(l<=r) {
+    const m=Math.floor((l+r)/2);
+    if(arr[m]===target) return m;
+    arr[m]<target ? l=m+1 : r=m-1;
+  }
+  return -1;
+}`,
+concept:"O(log n) — eliminates half each step. Works on any monotonic function.",
+tests:[
+  {call:"binarySearch([1,3,5,7,9,11], 7)",expect:3},
+  {call:"binarySearch([1,3,5,7], 4)",expect:-1},
+  {call:"binarySearch([2], 2)",expect:0}
+]},
+
+{id:29,t:2,cat:"Linked Lists",title:"Build Linked List",
+prompt:"Create ListNode class and build linked list from array. Return head.",
+sig:"class ListNode { }\nfunction buildList(arr) { }",
+hint:"Head = first node. Loop rest, link via .next.",
+solution:`class ListNode {
+  constructor(val) { this.val=val; this.next=null; }
+}
+function buildList(arr) {
+  if(!arr.length) return null;
+  const h=new ListNode(arr[0]); let c=h;
+  for(let i=1;i<arr.length;i++){c.next=new ListNode(arr[i]);c=c.next;}
+  return h;
+}`,
+concept:"Simplest pointer-based structure. Foundation for stacks, queues, graphs.",
+tests:[
+  {call:"buildList([1,2,3]).val",expect:1},
+  {call:"buildList([1,2,3]).next.next.val",expect:3},
+  {call:"buildList([])",expect:null}
+]},
+
+{id:30,t:2,cat:"Linked Lists",title:"Reverse Linked List",
+prompt:"Reverse singly linked list in place. Return new head.",
+sig:"function reverseList(head) { }",
+hint:"Three pointers: prev, current, next. Redirect .next backward.",
+solution:`function reverseList(head) {
+  let prev=null, cur=head;
+  while(cur) { const n=cur.next; cur.next=prev; prev=cur; cur=n; }
+  return prev;
+}`,
+concept:"Most common linked list question. Three-pointer technique.",
+tests:[
+  {call:"(function(){const h=buildList([1,2,3]);const r=reverseList(h);return [r.val,r.next.val,r.next.next.val];})()",expect:[3,2,1]}
+],setup:"class ListNode{constructor(v){this.val=v;this.next=null;}}\nfunction buildList(a){if(!a.length)return null;const h=new ListNode(a[0]);let c=h;for(let i=1;i<a.length;i++){c.next=new ListNode(a[i]);c=c.next;}return h;}"},
+
+{id:31,t:2,cat:"Recursion",title:"Fibonacci (Memo)",
+prompt:"Nth Fibonacci with memoization. fib(0)=0, fib(1)=1.",
+sig:"function fib(n, memo = {}) { }",
+hint:"Check memo before recursing. Store after computing.",
+solution:`function fib(n, memo={}) {
+  if(n===0) return 0; if(n===1) return 1;
+  if(memo[n]!==undefined) return memo[n];
+  memo[n]=fib(n-1,memo)+fib(n-2,memo);
+  return memo[n];
+}`,
+concept:"Memoization: O(2^n) → O(n). Core of dynamic programming.",
+tests:[
+  {call:"fib(0)",expect:0},
+  {call:"fib(10)",expect:55},
+  {call:"fib(20)",expect:6765}
+]},
+
+{id:32,t:2,cat:"Sliding Window",title:"Longest No-Repeat Substring",
+prompt:"Length of longest substring without repeating characters.",
+sig:"function lengthOfLongest(s) { }",
+hint:"Sliding window + map. Expand right, shrink left on duplicate.",
+solution:`function lengthOfLongest(s) {
+  const seen={}; let l=0,mx=0;
+  for(let r=0;r<s.length;r++){
+    if(seen[s[r]]!==undefined&&seen[s[r]]>=l) l=seen[s[r]]+1;
+    seen[s[r]]=r; mx=Math.max(mx,r-l+1);
+  }
+  return mx;
+}`,
+concept:"Variable sliding window + hash map. Top interview question.",
+tests:[
+  {call:'lengthOfLongest("abcabcbb")',expect:3},
+  {call:'lengthOfLongest("bbbbb")',expect:1},
+  {call:'lengthOfLongest("")',expect:0}
+]},
+
+{id:49,t:2,cat:"Hash Maps",title:"Group Anagrams",
+prompt:"Group strings that are anagrams together.",
+sig:"function groupAnagrams(strs) { }",
+hint:"Sort each string as canonical key. Group by key.",
+solution:`function groupAnagrams(strs) {
+  const m={};
+  for(const s of strs){const k=s.split('').sort().join('');if(!m[k])m[k]=[];m[k].push(s);}
+  return Object.values(m);
+}`,
+concept:"Canonical form as hash key. Normalize then group.",
+tests:[
+  {call:'(function(){const r=groupAnagrams(["eat","tea","ate","tan","nat","bat"]);return r.length;})()',expect:3}
+]},
+
+{id:50,t:2,cat:"Arrays",title:"Product Except Self",
+prompt:"Each element = product of all OTHER elements. No division. O(n).",
+sig:"function productExceptSelf(nums) { }",
+hint:"Two passes: prefix products left→right, suffix right→left.",
+solution:`function productExceptSelf(nums) {
+  const n=nums.length, r=new Array(n).fill(1);
+  let p=1; for(let i=0;i<n;i++){r[i]=p;p*=nums[i];}
+  let s=1; for(let i=n-1;i>=0;i--){r[i]*=s;s*=nums[i];}
+  return r;
+}`,
+concept:"Prefix + suffix products. Sandwich technique.",
+tests:[
+  {call:"productExceptSelf([1,2,3,4])",expect:[24,12,8,6]},
+  {call:"productExceptSelf([2,3])",expect:[3,2]}
+]},
+
+{id:51,t:2,cat:"Linked Lists",title:"Detect Cycle",
+prompt:"Return true if linked list has a cycle.",
+sig:"function hasCycle(head) { }",
+hint:"Floyd's: slow=1 step, fast=2 steps. Meet = cycle.",
+solution:`function hasCycle(head) {
+  let s=head, f=head;
+  while(f&&f.next) { s=s.next; f=f.next.next; if(s===f) return true; }
+  return false;
+}`,
+concept:"Floyd's tortoise and hare — O(n) time, O(1) space.",
+tests:[
+  {call:"(function(){const h=buildList([1,2,3]);return hasCycle(h);})()",expect:false},
+  {call:"(function(){const h=buildList([1,2,3]);h.next.next.next=h;return hasCycle(h);})()",expect:true}
+],setup:"class ListNode{constructor(v){this.val=v;this.next=null;}}\nfunction buildList(a){if(!a.length)return null;const h=new ListNode(a[0]);let c=h;for(let i=1;i<a.length;i++){c.next=new ListNode(a[i]);c=c.next;}return h;}"},
+
+{id:52,t:2,cat:"Sorting",title:"Merge Sort",
+prompt:"Implement merge sort. Return sorted array.",
+sig:"function mergeSort(arr) { }",
+hint:"Base: length≤1. Split at mid, recurse, merge halves.",
+solution:`function mergeSort(arr) {
+  if(arr.length<=1) return arr;
+  const m=Math.floor(arr.length/2);
+  const l=mergeSort(arr.slice(0,m)), r=mergeSort(arr.slice(m));
+  const res=[]; let i=0,j=0;
+  while(i<l.length&&j<r.length) l[i]<=r[j]?res.push(l[i++]):res.push(r[j++]);
+  while(i<l.length) res.push(l[i++]);
+  while(j<r.length) res.push(r[j++]);
+  return res;
+}`,
+concept:"O(n log n) guaranteed, stable. Must-know for interviews.",
+tests:[
+  {call:"mergeSort([5,3,8,1,9,2])",expect:[1,2,3,5,8,9]},
+  {call:"mergeSort([1])",expect:[1]},
+  {call:"mergeSort([])",expect:[]}
+]},
+
+{id:53,t:2,cat:"Binary Trees",title:"Path Sum",
+prompt:"Root-to-leaf path exists that sums to target?",
+sig:"function hasPathSum(root, target) { }",
+hint:"Subtract current val as you recurse. At leaf: val === remaining?",
+solution:`function hasPathSum(root, t) {
+  if(!root) return false;
+  if(!root.left&&!root.right) return root.val===t;
+  return hasPathSum(root.left,t-root.val)||hasPathSum(root.right,t-root.val);
+}`,
+concept:"Reducing the problem as you recurse.",
+tests:[
+  {call:"hasPathSum(buildTree(), 7)",expect:true},
+  {call:"hasPathSum(buildTree(), 4)",expect:true},
+  {call:"hasPathSum(buildTree(), 99)",expect:false}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}\nfunction buildTree(){const r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);return r;}"},
+
+{id:54,t:2,cat:"Arrays",title:"Kadane's (Max Subarray)",
+prompt:"Contiguous subarray with largest sum. Array can have negatives.",
+sig:"function maxSubarray(nums) { }",
+hint:"Extend current subarray or start fresh at each element.",
+solution:`function maxSubarray(nums) {
+  let cur=nums[0], mx=nums[0];
+  for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);mx=Math.max(mx,cur);}
+  return mx;
+}`,
+concept:"Kadane's — O(n) DP as a simple loop.",
+tests:[
+  {call:"maxSubarray([-2,1,-3,4,-1,2,1,-5,4])",expect:6},
+  {call:"maxSubarray([-1])",expect:-1},
+  {call:"maxSubarray([5,4,-1,7,8])",expect:23}
+]},
+
+{id:55,t:2,cat:"Hash Maps",title:"First Unique Character",
+prompt:"First non-repeating character's index. -1 if none.",
+sig:"function firstUnique(s) { }",
+hint:"Count frequencies, then find first with count 1.",
+solution:`function firstUnique(s) {
+  const f={};
+  for(const c of s) f[c]=(f[c]||0)+1;
+  for(let i=0;i<s.length;i++) if(f[s[i]]===1) return i;
+  return -1;
+}`,
+concept:"Two-pass frequency pattern.",
+tests:[
+  {call:'firstUnique("leetcode")',expect:0},
+  {call:'firstUnique("aabb")',expect:-1},
+  {call:'firstUnique("aAbB")',expect:0}
+]},
+
+{id:56,t:2,cat:"Stacks",title:"Queue From Stacks",
+prompt:"FIFO queue using two stacks. enqueue(val) and dequeue().",
+sig:"class MyQueue {\n  enqueue(val) { }\n  dequeue() { }\n}",
+hint:"Stack1 input, stack2 output. When s2 empty, pour s1 into s2.",
+solution:`class MyQueue {
+  constructor() { this.s1=[]; this.s2=[]; }
+  enqueue(v) { this.s1.push(v); }
+  dequeue() {
+    if(!this.s2.length) while(this.s1.length) this.s2.push(this.s1.pop());
+    return this.s2.pop();
+  }
+}`,
+concept:"Reversing a stack gives FIFO. Amortized O(1).",
+tests:[
+  {call:"(function(){const q=new MyQueue();q.enqueue(1);q.enqueue(2);q.enqueue(3);return [q.dequeue(),q.dequeue(),q.dequeue()];})()",expect:[1,2,3]}
+]},
+
+// TIER 3
+{id:13,t:3,cat:"Binary Trees",title:"BST Insert",
+prompt:"Insert value into BST. Left < node, right > node. Return root.",
+sig:"function insertBST(root, val) { }",
+hint:"Null → new node. Compare, recurse left or right.",
+solution:`function insertBST(root, val) {
+  if(!root) return new TreeNode(val);
+  if(val<root.val) root.left=insertBST(root.left,val);
+  else root.right=insertBST(root.right,val);
+  return root;
+}`,
+concept:"BST property: O(log n) search.",
+tests:[
+  {call:"(function(){let r=null;r=insertBST(r,5);r=insertBST(r,3);r=insertBST(r,7);return [r.val,r.left.val,r.right.val];})()",expect:[5,3,7]}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}"},
+
+{id:14,t:3,cat:"Binary Trees",title:"Level-Order (BFS)",
+prompt:"Return values level by level as array of arrays.",
+sig:"function levelOrder(root) { }",
+hint:"Queue. Process current level, push children for next.",
+solution:`function levelOrder(root) {
+  if(!root) return [];
+  const res=[], q=[root];
+  while(q.length){const lv=[], sz=q.length;
+    for(let i=0;i<sz;i++){const n=q.shift();lv.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}
+    res.push(lv);
+  } return res;
+}`,
+concept:"BFS with queue for level-aware processing.",
+tests:[
+  {call:"levelOrder(buildTree())",expect:[[1],[2,3],[4,5]]}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}\nfunction buildTree(){const r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);return r;}"},
+
+{id:15,t:3,cat:"Dynamic Programming",title:"Climbing Stairs",
+prompt:"1 or 2 stairs per step. How many ways to climb n?",
+sig:"function climbStairs(n) { }",
+hint:"ways(n) = ways(n-1) + ways(n-2). Fibonacci!",
+solution:`function climbStairs(n) {
+  if(n<=2) return n;
+  let a=1, b=2;
+  for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}
+  return b;
+}`,
+concept:"DP — overlapping subproblems. O(n) replaces O(2^n).",
+tests:[
+  {call:"climbStairs(2)",expect:2},
+  {call:"climbStairs(5)",expect:8},
+  {call:"climbStairs(10)",expect:89}
+]},
+
+{id:16,t:3,cat:"Audio DSP",title:"Moving Average Filter",
+prompt:"Smooth signal with window k. Return averaged values.",
+sig:"function movingAverage(samples, k) { }",
+hint:"Sliding window. First sum, then slide.",
+solution:`function movingAverage(samples, k) {
+  const r=[]; let s=0;
+  for(let i=0;i<k;i++) s+=samples[i];
+  r.push(s/k);
+  for(let i=k;i<samples.length;i++){s+=samples[i]-samples[i-k];r.push(s/k);}
+  return r;
+}`,
+concept:"Moving average = simple FIR low-pass filter.",
+tests:[
+  {call:"movingAverage([1,3,5,7,9], 3)",expect:[3,5,7]},
+  {call:"movingAverage([2,4,6,8], 2)",expect:[3,5,7]}
+]},
+
+{id:17,t:3,cat:"Audio DSP",title:"Zero-Crossing Rate",
+prompt:"Rate signal changes sign. Return crossings / samples.",
+sig:"function zeroCrossingRate(samples) { }",
+hint:"Compare consecutive pairs for sign change.",
+solution:`function zeroCrossingRate(samples) {
+  let c=0;
+  for(let i=1;i<samples.length;i++)
+    if((samples[i]>=0&&samples[i-1]<0)||(samples[i]<0&&samples[i-1]>=0)) c++;
+  return c/samples.length;
+}`,
+concept:"ZCR: voice activity detection feature.",
+tests:[
+  {call:"zeroCrossingRate([1,-1,1,-1,1])",expect:0.8},
+  {call:"zeroCrossingRate([1,2,3])",expect:0}
+]},
+
+{id:18,t:3,cat:"Audio DSP",title:"Frame Energy",
+prompt:"Energy per frame = sum of squared samples per frame.",
+sig:"function frameEnergy(samples, frameSize) { }",
+hint:"Non-overlapping frames. Sum squares per frame.",
+solution:`function frameEnergy(samples, frameSize) {
+  const r=[];
+  for(let i=0;i+frameSize<=samples.length;i+=frameSize){
+    let e=0; for(let j=i;j<i+frameSize;j++) e+=samples[j]*samples[j];
+    r.push(e);
+  } return r;
+}`,
+concept:"Frame-based processing = how all audio ML works.",
+tests:[
+  {call:"frameEnergy([1,2,3,4,5,6], 3)",expect:[14,77]},
+  {call:"frameEnergy([1,1,1,1], 2)",expect:[2,2]}
+]},
+
+{id:33,t:3,cat:"Binary Trees",title:"Invert Binary Tree",
+prompt:"Mirror tree — swap all left/right children.",
+sig:"function invertTree(root) { }",
+hint:"Swap left↔right at each node, recurse both.",
+solution:`function invertTree(root) {
+  if(!root) return null;
+  const t=root.left; root.left=root.right; root.right=t;
+  invertTree(root.left); invertTree(root.right);
+  return root;
+}`,
+concept:"Simple swap + recurse. The famous Homebrew interview question.",
+tests:[
+  {call:"(function(){const r=buildTree();invertTree(r);return [r.left.val,r.right.val];})()",expect:[3,2]}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}\nfunction buildTree(){const r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);return r;}"},
+
+{id:34,t:3,cat:"Binary Trees",title:"Validate BST",
+prompt:"Is binary tree a valid BST? Left descendants <, right >.",
+sig:"function isValidBST(root) { }",
+hint:"Pass min/max bounds through recursion.",
+solution:`function isValidBST(root) {
+  function check(n,min,max){
+    if(!n)return true;
+    if(n.val<=min||n.val>=max)return false;
+    return check(n.left,min,n.val)&&check(n.right,n.val,max);
+  }
+  return check(root,-Infinity,Infinity);
+}`,
+concept:"Passing constraints through recursion.",
+tests:[
+  {call:"(function(){const r=new TreeNode(5);r.left=new TreeNode(3);r.right=new TreeNode(7);return isValidBST(r);})()",expect:true},
+  {call:"(function(){const r=new TreeNode(5);r.left=new TreeNode(6);return isValidBST(r);})()",expect:false}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}"},
+
+{id:35,t:3,cat:"Dynamic Programming",title:"Coin Change",
+prompt:"Fewest coins to make amount. -1 if impossible.",
+sig:"function coinChange(coins, amount) { }",
+hint:"dp[i] = fewest coins for amount i. Try every coin.",
+solution:`function coinChange(coins, amount) {
+  const dp=new Array(amount+1).fill(Infinity); dp[0]=0;
+  for(let i=1;i<=amount;i++)
+    for(const c of coins) if(c<=i&&dp[i-c]+1<dp[i]) dp[i]=dp[i-c]+1;
+  return dp[amount]===Infinity?-1:dp[amount];
+}`,
+concept:"Bottom-up DP. Why DP beats greedy.",
+tests:[
+  {call:"coinChange([1,5,10,25], 30)",expect:2},
+  {call:"coinChange([2], 3)",expect:-1},
+  {call:"coinChange([1], 0)",expect:0}
+]},
+
+{id:36,t:3,cat:"Graphs",title:"Graph BFS Distance",
+prompt:"Shortest distances from start node in adjacency list graph.",
+sig:"function bfsDistance(graph, start) { }",
+hint:"Queue. Start=0. Unvisited neighbor = dist+1.",
+solution:`function bfsDistance(graph, start) {
+  const d={[start]:0}, q=[start];
+  while(q.length){const n=q.shift();for(const nb of(graph[n]||[])){if(d[nb]===undefined){d[nb]=d[n]+1;q.push(nb);}}}
+  return d;
+}`,
+concept:"BFS finds shortest paths in unweighted graphs.",
+tests:[
+  {call:`bfsDistance({A:['B','C'],B:['D'],C:[],D:[]}, 'A')`,expect:{A:0,B:1,C:1,D:2}}
+]},
+
+{id:37,t:3,cat:"Stacks",title:"Min Stack",
+prompt:"Stack with O(1) push, pop, top, getMin.",
+sig:"class MinStack {\n  push(val){} pop(){} top(){} getMin(){}\n}",
+hint:"Two stacks: values + running minimums.",
+solution:`class MinStack {
+  constructor(){this.s=[];this.m=[];}
+  push(v){this.s.push(v);if(!this.m.length||v<=this.m[this.m.length-1])this.m.push(v);}
+  pop(){const v=this.s.pop();if(v===this.m[this.m.length-1])this.m.pop();}
+  top(){return this.s[this.s.length-1];}
+  getMin(){return this.m[this.m.length-1];}
+}`,
+concept:"Auxiliary data structure for O(1) queries.",
+tests:[
+  {call:"(function(){const s=new MinStack();s.push(3);s.push(1);s.push(2);return s.getMin();})()",expect:1},
+  {call:"(function(){const s=new MinStack();s.push(3);s.push(1);s.pop();return s.getMin();})()",expect:3}
+]},
+
+{id:38,t:3,cat:"Audio DSP",title:"Circular Buffer",
+prompt:"Fixed-size ring buffer. write(sample) and read().",
+sig:"class CircBuf {\n  constructor(size){}\n  write(s){}\n  read(){}\n}",
+hint:"Array + read/write pointers wrapping with modulo.",
+solution:`class CircBuf {
+  constructor(sz){this.b=new Array(sz).fill(0);this.sz=sz;this.w=0;this.r=0;this.c=0;}
+  write(s){this.b[this.w]=s;this.w=(this.w+1)%this.sz;if(this.c<this.sz)this.c++;else this.r=(this.r+1)%this.sz;}
+  read(){if(!this.c)return null;const v=this.b[this.r];this.r=(this.r+1)%this.sz;this.c--;return v;}
+}`,
+concept:"Core real-time audio data structure. Every driver/DAW uses this.",
+tests:[
+  {call:"(function(){const b=new CircBuf(3);b.write(1);b.write(2);b.write(3);b.write(4);return b.read();})()",expect:2},
+  {call:"(function(){const b=new CircBuf(2);b.write(10);b.write(20);return [b.read(),b.read()];})()",expect:[10,20]}
+]},
+
+{id:39,t:3,cat:"Audio DSP",title:"Peak Detector",
+prompt:"Find peaks: value > threshold AND > both neighbors. Return indices.",
+sig:"function detectPeaks(samples, threshold) { }",
+hint:"Skip first/last. Check > threshold and > both neighbors.",
+solution:`function detectPeaks(samples, threshold) {
+  const p=[];
+  for(let i=1;i<samples.length-1;i++)
+    if(samples[i]>threshold&&samples[i]>samples[i-1]&&samples[i]>samples[i+1]) p.push(i);
+  return p;
+}`,
+concept:"Used in beat tracking and onset detection.",
+tests:[
+  {call:"detectPeaks([0.1,0.8,0.3,0.9,0.2], 0.5)",expect:[1,3]},
+  {call:"detectPeaks([0.1,0.2,0.1], 0.5)",expect:[]}
+]},
+
+{id:40,t:3,cat:"Audio DSP",title:"Convolution (FIR)",
+prompt:"Convolve signal with kernel. Output length = sig + kern - 1.",
+sig:"function convolve(signal, kernel) { }",
+hint:"For each output[i+j], accumulate signal[i]*kernel[j].",
+solution:`function convolve(signal, kernel) {
+  const o=new Array(signal.length+kernel.length-1).fill(0);
+  for(let i=0;i<signal.length;i++) for(let j=0;j<kernel.length;j++) o[i+j]+=signal[i]*kernel[j];
+  return o;
+}`,
+concept:"Convolution = filtering. FIR filters, reverbs, CNNs all use it.",
+tests:[
+  {call:"convolve([1,2,3],[1,0.5])",expect:[1,2.5,4,1.5]},
+  {call:"convolve([1,0,0],[0,0,1])",expect:[0,0,1,0,0]}
+]},
+
+{id:57,t:3,cat:"Dynamic Programming",title:"Longest Common Subsequence",
+prompt:"Length of longest common subsequence of two strings.",
+sig:"function lcs(s1, s2) { }",
+hint:"2D DP. Match→diagonal+1, else max(up, left).",
+solution:`function lcs(s1, s2) {
+  const m=s1.length,n=s2.length;
+  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}`,
+concept:"2D DP. Used in diff tools and DNA alignment.",
+tests:[
+  {call:'lcs("abcde","ace")',expect:3},
+  {call:'lcs("abc","def")',expect:0},
+  {call:'lcs("","abc")',expect:0}
+]},
+
+{id:58,t:3,cat:"Graphs",title:"Number of Islands",
+prompt:"Count islands in grid of '1' (land) and '0' (water).",
+sig:"function numIslands(grid) { }",
+hint:"Scan for '1'. DFS flood-fill to mark visited.",
+solution:`function numIslands(grid) {
+  let c=0;
+  function dfs(i,j){
+    if(i<0||i>=grid.length||j<0||j>=grid[0].length||grid[i][j]==='0')return;
+    grid[i][j]='0'; dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);
+  }
+  for(let i=0;i<grid.length;i++) for(let j=0;j<grid[0].length;j++)
+    if(grid[i][j]==='1'){c++;dfs(i,j);}
+  return c;
+}`,
+concept:"Grid DFS. Flood-fill for connected components.",
+tests:[
+  {call:`numIslands([['1','1','0'],['1','0','0'],['0','0','1']])`,expect:2},
+  {call:`numIslands([['0','0'],['0','0']])`,expect:0}
+]},
+
+{id:59,t:3,cat:"Binary Trees",title:"Lowest Common Ancestor",
+prompt:"LCA of two values in a BST.",
+sig:"function lca(root, p, q) { }",
+hint:"Both < → left. Both > → right. Split → LCA.",
+solution:`function lca(root, p, q) {
+  while(root){
+    if(p<root.val&&q<root.val) root=root.left;
+    else if(p>root.val&&q>root.val) root=root.right;
+    else return root;
+  }
+}`,
+concept:"Exploit BST ordering. Split point = answer.",
+tests:[
+  {call:"(function(){const r=new TreeNode(6);r.left=new TreeNode(2);r.right=new TreeNode(8);return lca(r,2,8).val;})()",expect:6}
+],setup:"class TreeNode{constructor(v){this.val=v;this.left=null;this.right=null;}}"},
+
+{id:60,t:3,cat:"Graphs",title:"Topological Sort",
+prompt:"Valid topological ordering of DAG.",
+sig:"function topoSort(n, edges) { }",
+hint:"Kahn's: in-degrees. Start with 0-degree nodes.",
+solution:`function topoSort(n, edges) {
+  const adj=Array.from({length:n},()=>[]),deg=new Array(n).fill(0);
+  for(const[f,t]of edges){adj[f].push(t);deg[t]++;}
+  const q=[]; for(let i=0;i<n;i++) if(!deg[i])q.push(i);
+  const r=[]; while(q.length){const nd=q.shift();r.push(nd);for(const nb of adj[nd]){deg[nb]--;if(!deg[nb])q.push(nb);}}
+  return r;
+}`,
+concept:"Dependency ordering. Build systems, prerequisites.",
+tests:[
+  {call:"topoSort(4, [[0,1],[0,2],[1,3],[2,3]])",expect:[0,1,2,3]},
+  {call:"topoSort(2, [[1,0]])",expect:[1,0]}
+]},
+
+{id:61,t:3,cat:"Audio DSP",title:"RMS Level",
+prompt:"RMS per frame = sqrt(mean of squared samples).",
+sig:"function rmsLevel(samples, frameSize) { }",
+hint:"Like frame energy but divide by N then sqrt.",
+solution:`function rmsLevel(samples, frameSize) {
+  const r=[];
+  for(let i=0;i+frameSize<=samples.length;i+=frameSize){
+    let s=0; for(let j=i;j<i+frameSize;j++) s+=samples[j]*samples[j];
+    r.push(Math.sqrt(s/frameSize));
+  } return r;
+}`,
+concept:"RMS = standard loudness measurement in audio.",
+tests:[
+  {call:"rmsLevel([1,-1,1,-1], 4)",expect:[1]},
+  {call:"rmsLevel([3,4], 2)",expect:[Math.sqrt(12.5)]}
+]},
+
+{id:62,t:3,cat:"Audio DSP",title:"Noise Gate",
+prompt:"If frame RMS < threshold, silence it. Return modified samples.",
+sig:"function noiseGate(samples, frameSize, threshold) { }",
+hint:"Calc RMS per frame. Below threshold → zero out.",
+solution:`function noiseGate(samples, frameSize, threshold) {
+  const o=[...samples];
+  for(let i=0;i+frameSize<=o.length;i+=frameSize){
+    let s=0; for(let j=i;j<i+frameSize;j++) s+=o[j]*o[j];
+    if(Math.sqrt(s/frameSize)<threshold) for(let j=i;j<i+frameSize;j++) o[j]=0;
+  } return o;
+}`,
+concept:"Real audio processor. Feature→decision→action, what ML automates.",
+tests:[
+  {call:"noiseGate([0.01,0.02,0.8,0.9], 2, 0.1)",expect:[0,0,0.8,0.9]},
+  {call:"noiseGate([1,1,1,1], 2, 0.5)",expect:[1,1,1,1]}
+]},
+
+{id:63,t:3,cat:"Audio DSP",title:"Decibel Conversion",
+prompt:"ampToDb(amp) = 20*log10(amp). dbToAmp(db) = 10^(db/20). Handle 0.",
+sig:"function ampToDb(amp) { }\nfunction dbToAmp(db) { }",
+hint:"Math.log10 and Math.pow. Guard amp=0.",
+solution:`function ampToDb(amp) {
+  if(amp===0) return -Infinity;
+  return 20*Math.log10(Math.abs(amp));
+}
+function dbToAmp(db) {
+  return Math.pow(10, db/20);
+}`,
+concept:"dB = universal audio unit. -6dB = half amplitude.",
+tests:[
+  {call:"ampToDb(1)",expect:0},
+  {call:"Math.round(ampToDb(0.5)*100)/100",expect:-6.02},
+  {call:"Math.round(dbToAmp(-6)*1000)/1000",expect:0.501}
+]},
+
+{id:64,t:3,cat:"Audio DSP",title:"Downsample Audio",
+prompt:"Downsample by factor N: moving average filter (anti-alias), then keep every Nth.",
+sig:"function downsample(samples, factor) { }",
+hint:"Moving average first, then decimate.",
+solution:`function downsample(samples, factor) {
+  const filt=[];
+  for(let i=0;i+factor<=samples.length;i++){
+    let s=0; for(let j=0;j<factor;j++) s+=samples[i+j];
+    filt.push(s/factor);
+  }
+  const o=[]; for(let i=0;i<filt.length;i+=factor) o.push(filt[i]);
+  return o;
+}`,
+concept:"Filter-then-decimate prevents aliasing. How sample rate conversion works.",
+tests:[
+  {call:"downsample([1,2,3,4,5,6,7,8], 2)",expect:[1.5,3.5,5.5,7.5]},
+  {call:"downsample([10,20,30,40,50,60], 3)",expect:[20,50]}
+]}
+];
+
+// LANGS[id] = { py:{sig,sol}, cpp:{sig,sol}, sql:{sig,sol} }
+const LANGS={
+1:{py:{sig:`def swap(a, b):`,sol:`def swap(a, b):\n    a = a + b\n    b = a - b\n    a = a - b\n    return [a, b]`},cpp:{sig:`vector<int> swap_vars(int a, int b) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> swap_vars(int a, int b) {\n    a = a + b;\n    b = a - b;\n    a = a - b;\n    return {a, b};\n}`}},
+2:{py:{sig:`def find_max(arr):`,sol:`def find_max(arr):\n    m = arr[0]\n    for x in arr[1:]:\n        if x > m:\n            m = x\n    return m`},cpp:{sig:`int find_max(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nint find_max(vector<int>& arr) {\n    int m = arr[0];\n    for (int i = 1; i < (int)arr.size(); i++)\n        if (arr[i] > m) m = arr[i];\n    return m;\n}`},sql:{sig:`-- Given table: nums(val INT)\nSELECT ...`,sol:`SELECT MAX(val) AS max_val FROM nums;`}},
+3:{py:{sig:`def reverse_str(s):`,sol:`def reverse_str(s):\n    r = ''\n    for i in range(len(s) - 1, -1, -1):\n        r += s[i]\n    return r`},cpp:{sig:`string reverse_str(string s) { }`,sol:`#include <string>\nusing namespace std;\n\nstring reverse_str(string s) {\n    int l = 0, r = s.size() - 1;\n    while (l < r) { swap(s[l], s[r]); l++; r--; }\n    return s;\n}`}},
+4:{py:{sig:`def count_occurrences(arr, target):`,sol:`def count_occurrences(arr, target):\n    count = 0\n    for x in arr:\n        if x == target:\n            count += 1\n    return count`},cpp:{sig:`int count_occurrences(vector<int>& arr, int target) { }`,sol:`#include <vector>\nusing namespace std;\n\nint count_occurrences(vector<int>& arr, int target) {\n    int c = 0;\n    for (int x : arr) if (x == target) c++;\n    return c;\n}`},sql:{sig:`-- Given table: nums(val INT)\n-- Count where val = ?`,sol:`SELECT COUNT(*) AS cnt FROM nums WHERE val = :target;`}},
+5:{py:{sig:`def fizz_buzz(n):`,sol:`def fizz_buzz(n):\n    result = []\n    for i in range(1, n + 1):\n        if i % 15 == 0: result.append('FizzBuzz')\n        elif i % 3 == 0: result.append('Fizz')\n        elif i % 5 == 0: result.append('Buzz')\n        else: result.append(i)\n    return result`},cpp:{sig:`vector<string> fizz_buzz(int n) { }`,sol:`#include <vector>\n#include <string>\nusing namespace std;\n\nvector<string> fizz_buzz(int n) {\n    vector<string> r;\n    for (int i = 1; i <= n; i++) {\n        if (i % 15 == 0) r.push_back("FizzBuzz");\n        else if (i % 3 == 0) r.push_back("Fizz");\n        else if (i % 5 == 0) r.push_back("Buzz");\n        else r.push_back(to_string(i));\n    }\n    return r;\n}`}},
+6:{py:{sig:`def two_sum(nums, target):`,sol:`def two_sum(nums, target):\n    for i in range(len(nums)):\n        for j in range(i + 1, len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i, j]`},cpp:{sig:`vector<int> two_sum(vector<int>& nums, int target) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> two_sum(vector<int>& nums, int target) {\n    for (int i = 0; i < (int)nums.size(); i++)\n        for (int j = i + 1; j < (int)nums.size(); j++)\n            if (nums[i] + nums[j] == target) return {i, j};\n    return {};\n}`}},
+19:{py:{sig:`def sum_array(arr):`,sol:`def sum_array(arr):\n    s = 0\n    for x in arr: s += x\n    return s`},cpp:{sig:`int sum_array(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nint sum_array(vector<int>& arr) {\n    int s = 0;\n    for (int x : arr) s += x;\n    return s;\n}`},sql:{sig:`-- Given table: nums(val INT)\nSELECT ...`,sol:`SELECT SUM(val) AS total FROM nums;`}},
+20:{py:{sig:`def count_vowels(s):`,sol:`def count_vowels(s):\n    c = 0\n    for ch in s.lower():\n        if ch in 'aeiou': c += 1\n    return c`},cpp:{sig:`int count_vowels(string s) { }`,sol:`#include <string>\n#include <cctype>\nusing namespace std;\n\nint count_vowels(string s) {\n    int c = 0;\n    for (char ch : s) {\n        ch = tolower(ch);\n        if (ch=='a'||ch=='e'||ch=='i'||ch=='o'||ch=='u') c++;\n    }\n    return c;\n}`}},
+21:{py:{sig:`def remove_duplicates(arr):`,sol:`def remove_duplicates(arr):\n    result = []\n    for x in arr:\n        if x not in result: result.append(x)\n    return result`},cpp:{sig:`vector<int> remove_duplicates(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> remove_duplicates(vector<int>& arr) {\n    vector<int> r;\n    for (int x : arr) {\n        bool found = false;\n        for (int y : r) if (y == x) { found = true; break; }\n        if (!found) r.push_back(x);\n    }\n    return r;\n}`},sql:{sig:`-- Given table: nums(val INT)\nSELECT ...`,sol:`SELECT DISTINCT val FROM nums;`}},
+22:{py:{sig:`def factorial(n):`,sol:`def factorial(n):\n    if n == 0: return 1\n    r = 1\n    for i in range(1, n + 1): r *= i\n    return r`},cpp:{sig:`long long factorial(int n) { }`,sol:`long long factorial(int n) {\n    if (n == 0) return 1;\n    long long r = 1;\n    for (int i = 1; i <= n; i++) r *= i;\n    return r;\n}`}},
+23:{py:{sig:`def reverse_in_place(arr):`,sol:`def reverse_in_place(arr):\n    l, r = 0, len(arr) - 1\n    while l < r:\n        arr[l], arr[r] = arr[r], arr[l]\n        l += 1; r -= 1\n    return arr`},cpp:{sig:`vector<int> reverse_in_place(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> reverse_in_place(vector<int>& arr) {\n    int l = 0, r = arr.size() - 1;\n    while (l < r) { swap(arr[l], arr[r]); l++; r--; }\n    return arr;\n}`}},
+24:{py:{sig:`def is_anagram(s1, s2):`,sol:`def is_anagram(s1, s2):\n    s1, s2 = s1.lower(), s2.lower()\n    if len(s1) != len(s2): return False\n    c = {}\n    for ch in s1: c[ch] = c.get(ch, 0) + 1\n    for ch in s2:\n        if c.get(ch, 0) == 0: return False\n        c[ch] -= 1\n    return True`},cpp:{sig:`bool is_anagram(string s1, string s2) { }`,sol:`#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nbool is_anagram(string s1, string s2) {\n    transform(s1.begin(), s1.end(), s1.begin(), ::tolower);\n    transform(s2.begin(), s2.end(), s2.begin(), ::tolower);\n    if (s1.size() != s2.size()) return false;\n    unordered_map<char,int> c;\n    for (char ch : s1) c[ch]++;\n    for (char ch : s2) { if (c[ch]==0) return false; c[ch]--; }\n    return true;\n}`}},
+41:{py:{sig:`def second_largest(arr):`,sol:`def second_largest(arr):\n    f = s = float('-inf')\n    for x in arr:\n        if x > f: s, f = f, x\n        elif x > s and x != f: s = x\n    return s`},cpp:{sig:`int second_largest(vector<int>& arr) { }`,sol:`#include <vector>\n#include <climits>\nusing namespace std;\n\nint second_largest(vector<int>& arr) {\n    int f = INT_MIN, s = INT_MIN;\n    for (int x : arr) {\n        if (x > f) { s = f; f = x; }\n        else if (x > s && x != f) s = x;\n    }\n    return s;\n}`},sql:{sig:`-- Given table: nums(val INT)\nSELECT ...`,sol:`SELECT MAX(val) AS second_max\nFROM nums\nWHERE val < (SELECT MAX(val) FROM nums);`}},
+42:{py:{sig:`def capitalize_words(s):`,sol:`def capitalize_words(s):\n    r, cap = '', True\n    for ch in s:\n        if ch == ' ': r += ' '; cap = True\n        elif cap: r += ch.upper(); cap = False\n        else: r += ch\n    return r`},cpp:{sig:`string capitalize_words(string s) { }`,sol:`#include <string>\nusing namespace std;\n\nstring capitalize_words(string s) {\n    bool cap = true;\n    for (int i = 0; i < (int)s.size(); i++) {\n        if (s[i] == ' ') cap = true;\n        else if (cap) { s[i] = toupper(s[i]); cap = false; }\n    }\n    return s;\n}`}},
+43:{py:{sig:`def intersect(a, b):`,sol:`def intersect(a, b):\n    c = {}\n    for x in a: c[x] = c.get(x, 0) + 1\n    r = []\n    for x in b:\n        if c.get(x, 0) > 0: r.append(x); c[x] -= 1\n    return r`},cpp:{sig:`vector<int> intersect(vector<int>& a, vector<int>& b) { }`,sol:`#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nvector<int> intersect(vector<int>& a, vector<int>& b) {\n    unordered_map<int,int> c;\n    for (int x : a) c[x]++;\n    vector<int> r;\n    for (int x : b) { if (c[x] > 0) { r.push_back(x); c[x]--; } }\n    return r;\n}`}},
+44:{py:{sig:`def running_sum(arr):`,sol:`def running_sum(arr):\n    r = [arr[0]]\n    for i in range(1, len(arr)): r.append(r[i-1] + arr[i])\n    return r`},cpp:{sig:`vector<int> running_sum(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> running_sum(vector<int>& arr) {\n    vector<int> r = {arr[0]};\n    for (int i = 1; i < (int)arr.size(); i++) r.push_back(r[i-1] + arr[i]);\n    return r;\n}`},sql:{sig:`-- Given table: nums(id INT, val INT)\nSELECT ...`,sol:`SELECT id, val,\n  SUM(val) OVER (ORDER BY id) AS running_total\nFROM nums;`}},
+45:{py:{sig:`def missing_number(nums):`,sol:`def missing_number(nums):\n    n = len(nums)\n    return n * (n + 1) // 2 - sum(nums)`},cpp:{sig:`int missing_number(vector<int>& nums) { }`,sol:`#include <vector>\nusing namespace std;\n\nint missing_number(vector<int>& nums) {\n    int n = nums.size(), sum = 0;\n    for (int x : nums) sum += x;\n    return n * (n + 1) / 2 - sum;\n}`}},
+46:{py:{sig:`def is_power_of_two(n):`,sol:`def is_power_of_two(n):\n    if n <= 0: return False\n    return (n & (n - 1)) == 0`},cpp:{sig:`bool is_power_of_two(int n) { }`,sol:`bool is_power_of_two(int n) {\n    if (n <= 0) return false;\n    return (n & (n - 1)) == 0;\n}`}},
+47:{py:{sig:`def rotate_array(arr, k):`,sol:`def rotate_array(arr, k):\n    k = k % len(arr)\n    def rev(s, e):\n        while s < e: arr[s], arr[e] = arr[e], arr[s]; s += 1; e -= 1\n    rev(0, len(arr)-1); rev(0, k-1); rev(k, len(arr)-1)\n    return arr`},cpp:{sig:`vector<int> rotate_array(vector<int>& arr, int k) { }`,sol:`#include <vector>\n#include <algorithm>\nusing namespace std;\n\nvector<int> rotate_array(vector<int>& arr, int k) {\n    int n = arr.size(); k = k % n;\n    reverse(arr.begin(), arr.end());\n    reverse(arr.begin(), arr.begin()+k);\n    reverse(arr.begin()+k, arr.end());\n    return arr;\n}`}},
+48:{py:{sig:`def compress(s):`,sol:`def compress(s):\n    r, c = '', 1\n    for i in range(len(s)):\n        if i+1 < len(s) and s[i] == s[i+1]: c += 1\n        else: r += s[i] + str(c); c = 1\n    return r if len(r) < len(s) else s`},cpp:{sig:`string compress(string s) { }`,sol:`#include <string>\nusing namespace std;\n\nstring compress(string s) {\n    string r = ""; int c = 1;\n    for (int i = 0; i < (int)s.size(); i++) {\n        if (i+1<(int)s.size() && s[i]==s[i+1]) c++;\n        else { r += s[i]; r += to_string(c); c = 1; }\n    }\n    return r.size() < s.size() ? r : s;\n}`}},
+7:{py:{sig:`def two_sum_fast(nums, target):`,sol:`def two_sum_fast(nums, target):\n    m = {}\n    for i, n in enumerate(nums):\n        c = target - n\n        if c in m: return [m[c], i]\n        m[n] = i`},cpp:{sig:`vector<int> two_sum_fast(vector<int>& nums, int target) { }`,sol:`#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nvector<int> two_sum_fast(vector<int>& nums, int target) {\n    unordered_map<int,int> m;\n    for (int i = 0; i < (int)nums.size(); i++) {\n        int c = target - nums[i];\n        if (m.count(c)) return {m[c], i};\n        m[nums[i]] = i;\n    }\n    return {};\n}`}},
+8:{py:{sig:`def max_subarray_sum(arr, k):`,sol:`def max_subarray_sum(arr, k):\n    ws = sum(arr[:k]); mx = ws\n    for i in range(k, len(arr)):\n        ws += arr[i] - arr[i-k]; mx = max(mx, ws)\n    return mx`},cpp:{sig:`int max_subarray_sum(vector<int>& arr, int k) { }`,sol:`#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint max_subarray_sum(vector<int>& arr, int k) {\n    int ws = 0;\n    for (int i = 0; i < k; i++) ws += arr[i];\n    int mx = ws;\n    for (int i = k; i < (int)arr.size(); i++) { ws += arr[i]-arr[i-k]; mx = max(mx,ws); }\n    return mx;\n}`}},
+9:{py:{sig:`class TreeNode:\n    def __init__(self, val):\n\ndef build_tree():`,sol:`class TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n\ndef build_tree():\n    r = TreeNode(1)\n    r.left = TreeNode(2); r.right = TreeNode(3)\n    r.left.left = TreeNode(4); r.left.right = TreeNode(5)\n    return r`},cpp:{sig:`struct TreeNode {\n    int val;\n    TreeNode *left, *right;\n    TreeNode(int v);\n};\nTreeNode* build_tree() { }`,sol:`struct TreeNode {\n    int val;\n    TreeNode *left, *right;\n    TreeNode(int v) : val(v), left(nullptr), right(nullptr) {}\n};\n\nTreeNode* build_tree() {\n    TreeNode* r = new TreeNode(1);\n    r->left = new TreeNode(2); r->right = new TreeNode(3);\n    r->left->left = new TreeNode(4); r->left->right = new TreeNode(5);\n    return r;\n}`}},
+10:{py:{sig:`def max_depth(root):`,sol:`def max_depth(root):\n    if not root: return 0\n    return 1 + max(max_depth(root.left), max_depth(root.right))`},cpp:{sig:`int max_depth(TreeNode* root) { }`,sol:`int max_depth(TreeNode* root) {\n    if (!root) return 0;\n    return 1 + max(max_depth(root->left), max_depth(root->right));\n}`}},
+11:{py:{sig:`def in_order(root):`,sol:`def in_order(root):\n    r = []\n    def go(n):\n        if not n: return\n        go(n.left); r.append(n.val); go(n.right)\n    go(root)\n    return r`},cpp:{sig:`vector<int> in_order(TreeNode* root) { }`,sol:`#include <vector>\nusing namespace std;\n\nvoid go(TreeNode* n, vector<int>& r) {\n    if (!n) return;\n    go(n->left, r); r.push_back(n->val); go(n->right, r);\n}\nvector<int> in_order(TreeNode* root) {\n    vector<int> r; go(root, r); return r;\n}`}},
+12:{py:{sig:`def is_palindrome(s):`,sol:`def is_palindrome(s):\n    s = ''.join(c for c in s.lower() if c.isalnum())\n    l, r = 0, len(s) - 1\n    while l < r:\n        if s[l] != s[r]: return False\n        l += 1; r -= 1\n    return True`},cpp:{sig:`bool is_palindrome(string s) { }`,sol:`#include <string>\n#include <cctype>\nusing namespace std;\n\nbool is_palindrome(string s) {\n    string clean = "";\n    for (char c : s) if (isalnum(c)) clean += tolower(c);\n    int l = 0, r = clean.size() - 1;\n    while (l < r) { if (clean[l]!=clean[r]) return false; l++; r--; }\n    return true;\n}`}},
+25:{py:{sig:`def frequency(arr):`,sol:`def frequency(arr):\n    f = {}\n    for x in arr: f[x] = f.get(x, 0) + 1\n    return f`},cpp:{sig:`unordered_map<int,int> frequency(vector<int>& arr) { }`,sol:`#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nunordered_map<int,int> frequency(vector<int>& arr) {\n    unordered_map<int,int> f;\n    for (int x : arr) f[x]++;\n    return f;\n}`},sql:{sig:`-- Given table: nums(val INT)\nSELECT ...`,sol:`SELECT val, COUNT(*) AS freq\nFROM nums GROUP BY val ORDER BY freq DESC;`}},
+26:{py:{sig:`def is_valid(s):`,sol:`def is_valid(s):\n    st, m = [], {')':'(', '}':'{', ']':'['}\n    for c in s:\n        if c in '({[': st.append(c)\n        elif not st or st.pop() != m[c]: return False\n    return len(st) == 0`},cpp:{sig:`bool is_valid(string s) { }`,sol:`#include <string>\n#include <stack>\nusing namespace std;\n\nbool is_valid(string s) {\n    stack<char> st;\n    for (char c : s) {\n        if (c=='('||c=='{'||c=='[') st.push(c);\n        else {\n            if (st.empty()) return false;\n            char t = st.top(); st.pop();\n            if ((c==')'&&t!='(')||(c=='}'&&t!='{')||(c==']'&&t!='[')) return false;\n        }\n    }\n    return st.empty();\n}`}},
+27:{py:{sig:`def merge_sorted(a, b):`,sol:`def merge_sorted(a, b):\n    r, i, j = [], 0, 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]: r.append(a[i]); i += 1\n        else: r.append(b[j]); j += 1\n    r.extend(a[i:]); r.extend(b[j:])\n    return r`},cpp:{sig:`vector<int> merge_sorted(vector<int>& a, vector<int>& b) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> merge_sorted(vector<int>& a, vector<int>& b) {\n    vector<int> r; int i=0, j=0;\n    while (i<(int)a.size()&&j<(int)b.size())\n        a[i]<=b[j] ? r.push_back(a[i++]) : r.push_back(b[j++]);\n    while (i<(int)a.size()) r.push_back(a[i++]);\n    while (j<(int)b.size()) r.push_back(b[j++]);\n    return r;\n}`}},
+28:{py:{sig:`def binary_search(arr, target):`,sol:`def binary_search(arr, target):\n    l, r = 0, len(arr) - 1\n    while l <= r:\n        m = (l + r) // 2\n        if arr[m] == target: return m\n        elif arr[m] < target: l = m + 1\n        else: r = m - 1\n    return -1`},cpp:{sig:`int binary_search(vector<int>& arr, int target) { }`,sol:`#include <vector>\nusing namespace std;\n\nint binary_search(vector<int>& arr, int target) {\n    int l = 0, r = arr.size() - 1;\n    while (l <= r) {\n        int m = (l+r)/2;\n        if (arr[m]==target) return m;\n        arr[m]<target ? l=m+1 : r=m-1;\n    }\n    return -1;\n}`}},
+29:{py:{sig:`class ListNode:\n    def __init__(self, val):\n\ndef build_list(arr):`,sol:`class ListNode:\n    def __init__(self, val):\n        self.val = val\n        self.next = None\n\ndef build_list(arr):\n    if not arr: return None\n    h = ListNode(arr[0]); c = h\n    for v in arr[1:]: c.next = ListNode(v); c = c.next\n    return h`},cpp:{sig:`struct ListNode {\n    int val; ListNode* next;\n    ListNode(int v);\n};\nListNode* build_list(vector<int>& arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nstruct ListNode {\n    int val; ListNode* next;\n    ListNode(int v) : val(v), next(nullptr) {}\n};\n\nListNode* build_list(vector<int>& arr) {\n    if (arr.empty()) return nullptr;\n    ListNode* h = new ListNode(arr[0]); ListNode* c = h;\n    for (int i=1;i<(int)arr.size();i++) { c->next=new ListNode(arr[i]); c=c->next; }\n    return h;\n}`}},
+30:{py:{sig:`def reverse_list(head):`,sol:`def reverse_list(head):\n    prev, cur = None, head\n    while cur:\n        n = cur.next; cur.next = prev; prev = cur; cur = n\n    return prev`},cpp:{sig:`ListNode* reverse_list(ListNode* head) { }`,sol:`ListNode* reverse_list(ListNode* head) {\n    ListNode* prev = nullptr; ListNode* cur = head;\n    while (cur) {\n        ListNode* n = cur->next; cur->next = prev;\n        prev = cur; cur = n;\n    }\n    return prev;\n}`}},
+31:{py:{sig:`def fib(n, memo={}):`,sol:`def fib(n, memo={}):\n    if n == 0: return 0\n    if n == 1: return 1\n    if n in memo: return memo[n]\n    memo[n] = fib(n-1, memo) + fib(n-2, memo)\n    return memo[n]`},cpp:{sig:`int fib(int n) { }`,sol:`#include <unordered_map>\nusing namespace std;\nunordered_map<int,int> memo;\n\nint fib(int n) {\n    if (n==0) return 0; if (n==1) return 1;\n    if (memo.count(n)) return memo[n];\n    memo[n] = fib(n-1) + fib(n-2);\n    return memo[n];\n}`}},
+32:{py:{sig:`def length_of_longest(s):`,sol:`def length_of_longest(s):\n    seen = {}; l = mx = 0\n    for r in range(len(s)):\n        if s[r] in seen and seen[s[r]] >= l: l = seen[s[r]] + 1\n        seen[s[r]] = r; mx = max(mx, r - l + 1)\n    return mx`},cpp:{sig:`int length_of_longest(string s) { }`,sol:`#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nint length_of_longest(string s) {\n    unordered_map<char,int> seen; int l=0, mx=0;\n    for (int r=0;r<(int)s.size();r++) {\n        if (seen.count(s[r])&&seen[s[r]]>=l) l=seen[s[r]]+1;\n        seen[s[r]]=r; mx=max(mx,r-l+1);\n    }\n    return mx;\n}`}},
+49:{py:{sig:`def group_anagrams(strs):`,sol:`def group_anagrams(strs):\n    m = {}\n    for s in strs:\n        k = ''.join(sorted(s))\n        m.setdefault(k, []).append(s)\n    return list(m.values())`},cpp:{sig:`vector<vector<string>> group_anagrams(vector<string>& strs) { }`,sol:`#include <vector>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nvector<vector<string>> group_anagrams(vector<string>& strs) {\n    unordered_map<string,vector<string>> m;\n    for (auto& s : strs) { string k=s; sort(k.begin(),k.end()); m[k].push_back(s); }\n    vector<vector<string>> r;\n    for (auto& p : m) r.push_back(p.second);\n    return r;\n}`}},
+50:{py:{sig:`def product_except_self(nums):`,sol:`def product_except_self(nums):\n    n = len(nums); r = [1]*n\n    p = 1\n    for i in range(n): r[i] = p; p *= nums[i]\n    s = 1\n    for i in range(n-1,-1,-1): r[i] *= s; s *= nums[i]\n    return r`},cpp:{sig:`vector<int> product_except_self(vector<int>& nums) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> product_except_self(vector<int>& nums) {\n    int n=nums.size(); vector<int> r(n,1);\n    int p=1; for(int i=0;i<n;i++){r[i]=p;p*=nums[i];}\n    int s=1; for(int i=n-1;i>=0;i--){r[i]*=s;s*=nums[i];}\n    return r;\n}`}},
+51:{py:{sig:`def has_cycle(head):`,sol:`def has_cycle(head):\n    s = f = head\n    while f and f.next:\n        s = s.next; f = f.next.next\n        if s == f: return True\n    return False`},cpp:{sig:`bool has_cycle(ListNode* head) { }`,sol:`bool has_cycle(ListNode* head) {\n    ListNode *s=head, *f=head;\n    while (f&&f->next) {\n        s=s->next; f=f->next->next;\n        if (s==f) return true;\n    }\n    return false;\n}`}},
+52:{py:{sig:`def merge_sort(arr):`,sol:`def merge_sort(arr):\n    if len(arr) <= 1: return arr\n    m = len(arr)//2\n    l, r = merge_sort(arr[:m]), merge_sort(arr[m:])\n    res, i, j = [], 0, 0\n    while i<len(l) and j<len(r):\n        if l[i]<=r[j]: res.append(l[i]); i+=1\n        else: res.append(r[j]); j+=1\n    res.extend(l[i:]); res.extend(r[j:])\n    return res`},cpp:{sig:`vector<int> merge_sort(vector<int> arr) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> merge_sort(vector<int> arr) {\n    if (arr.size()<=1) return arr;\n    int m=arr.size()/2;\n    vector<int> l(arr.begin(),arr.begin()+m), r(arr.begin()+m,arr.end());\n    l=merge_sort(l); r=merge_sort(r);\n    vector<int> res; int i=0,j=0;\n    while(i<(int)l.size()&&j<(int)r.size())\n        l[i]<=r[j]?res.push_back(l[i++]):res.push_back(r[j++]);\n    while(i<(int)l.size()) res.push_back(l[i++]);\n    while(j<(int)r.size()) res.push_back(r[j++]);\n    return res;\n}`}},
+53:{py:{sig:`def has_path_sum(root, target):`,sol:`def has_path_sum(root, target):\n    if not root: return False\n    if not root.left and not root.right: return root.val == target\n    return (has_path_sum(root.left, target-root.val) or\n            has_path_sum(root.right, target-root.val))`},cpp:{sig:`bool has_path_sum(TreeNode* root, int target) { }`,sol:`bool has_path_sum(TreeNode* root, int target) {\n    if (!root) return false;\n    if (!root->left&&!root->right) return root->val==target;\n    return has_path_sum(root->left,target-root->val)||\n           has_path_sum(root->right,target-root->val);\n}`}},
+54:{py:{sig:`def max_subarray(nums):`,sol:`def max_subarray(nums):\n    cur = mx = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur+x); mx = max(mx, cur)\n    return mx`},cpp:{sig:`int max_subarray(vector<int>& nums) { }`,sol:`#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint max_subarray(vector<int>& nums) {\n    int cur=nums[0], mx=nums[0];\n    for(int i=1;i<(int)nums.size();i++){cur=max(nums[i],cur+nums[i]);mx=max(mx,cur);}\n    return mx;\n}`}},
+55:{py:{sig:`def first_unique(s):`,sol:`def first_unique(s):\n    f = {}\n    for c in s: f[c] = f.get(c,0)+1\n    for i,c in enumerate(s):\n        if f[c] == 1: return i\n    return -1`},cpp:{sig:`int first_unique(string s) { }`,sol:`#include <string>\n#include <unordered_map>\nusing namespace std;\n\nint first_unique(string s) {\n    unordered_map<char,int> f;\n    for (char c:s) f[c]++;\n    for (int i=0;i<(int)s.size();i++) if(f[s[i]]==1) return i;\n    return -1;\n}`},sql:{sig:`-- Given table: chars(pos INT, ch CHAR)\nSELECT ...`,sol:`SELECT MIN(pos) AS first_pos FROM chars\nWHERE ch IN (\n  SELECT ch FROM chars GROUP BY ch HAVING COUNT(*)=1\n);`}},
+56:{py:{sig:`class MyQueue:\n    def enqueue(self, val):\n    def dequeue(self):`,sol:`class MyQueue:\n    def __init__(self):\n        self.s1, self.s2 = [], []\n    def enqueue(self, v): self.s1.append(v)\n    def dequeue(self):\n        if not self.s2:\n            while self.s1: self.s2.append(self.s1.pop())\n        return self.s2.pop()`},cpp:{sig:`class MyQueue {\npublic:\n    void enqueue(int val);\n    int dequeue();\n};`,sol:`#include <stack>\nusing namespace std;\n\nclass MyQueue {\n    stack<int> s1, s2;\npublic:\n    void enqueue(int v) { s1.push(v); }\n    int dequeue() {\n        if (s2.empty()) while(!s1.empty()){s2.push(s1.top());s1.pop();}\n        int v=s2.top(); s2.pop(); return v;\n    }\n};`}},
+13:{py:{sig:`def insert_bst(root, val):`,sol:`def insert_bst(root, val):\n    if not root: return TreeNode(val)\n    if val < root.val: root.left = insert_bst(root.left, val)\n    else: root.right = insert_bst(root.right, val)\n    return root`},cpp:{sig:`TreeNode* insert_bst(TreeNode* root, int val) { }`,sol:`TreeNode* insert_bst(TreeNode* root, int val) {\n    if (!root) return new TreeNode(val);\n    if (val<root->val) root->left=insert_bst(root->left,val);\n    else root->right=insert_bst(root->right,val);\n    return root;\n}`}},
+14:{py:{sig:`def level_order(root):`,sol:`def level_order(root):\n    if not root: return []\n    res, q = [], [root]\n    while q:\n        lv, nq = [], []\n        for n in q:\n            lv.append(n.val)\n            if n.left: nq.append(n.left)\n            if n.right: nq.append(n.right)\n        res.append(lv); q = nq\n    return res`},cpp:{sig:`vector<vector<int>> level_order(TreeNode* root) { }`,sol:`#include <vector>\n#include <queue>\nusing namespace std;\n\nvector<vector<int>> level_order(TreeNode* root) {\n    if (!root) return {};\n    vector<vector<int>> res; queue<TreeNode*> q; q.push(root);\n    while (!q.empty()) {\n        int sz=q.size(); vector<int> lv;\n        for(int i=0;i<sz;i++){auto n=q.front();q.pop();lv.push_back(n->val);if(n->left)q.push(n->left);if(n->right)q.push(n->right);}\n        res.push_back(lv);\n    }\n    return res;\n}`}},
+15:{py:{sig:`def climb_stairs(n):`,sol:`def climb_stairs(n):\n    if n <= 2: return n\n    a, b = 1, 2\n    for _ in range(3, n+1): a, b = b, a+b\n    return b`},cpp:{sig:`int climb_stairs(int n) { }`,sol:`int climb_stairs(int n) {\n    if (n<=2) return n;\n    int a=1, b=2;\n    for(int i=3;i<=n;i++){int c=a+b;a=b;b=c;}\n    return b;\n}`}},
+16:{py:{sig:`def moving_average(samples, k):`,sol:`def moving_average(samples, k):\n    r, s = [], sum(samples[:k])\n    r.append(s/k)\n    for i in range(k, len(samples)):\n        s += samples[i]-samples[i-k]; r.append(s/k)\n    return r`},cpp:{sig:`vector<double> moving_average(vector<double>& samples, int k) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<double> moving_average(vector<double>& samples, int k) {\n    vector<double> r; double s=0;\n    for(int i=0;i<k;i++) s+=samples[i];\n    r.push_back(s/k);\n    for(int i=k;i<(int)samples.size();i++){s+=samples[i]-samples[i-k];r.push_back(s/k);}\n    return r;\n}`}},
+17:{py:{sig:`def zero_crossing_rate(samples):`,sol:`def zero_crossing_rate(samples):\n    c = 0\n    for i in range(1, len(samples)):\n        if (samples[i]>=0 and samples[i-1]<0) or (samples[i]<0 and samples[i-1]>=0): c+=1\n    return c / len(samples)`},cpp:{sig:`double zero_crossing_rate(vector<double>& samples) { }`,sol:`#include <vector>\nusing namespace std;\n\ndouble zero_crossing_rate(vector<double>& samples) {\n    int c=0;\n    for(int i=1;i<(int)samples.size();i++)\n        if((samples[i]>=0&&samples[i-1]<0)||(samples[i]<0&&samples[i-1]>=0)) c++;\n    return (double)c/samples.size();\n}`}},
+18:{py:{sig:`def frame_energy(samples, frame_size):`,sol:`def frame_energy(samples, frame_size):\n    r = []\n    for i in range(0, len(samples)-frame_size+1, frame_size):\n        e = sum(s*s for s in samples[i:i+frame_size])\n        r.append(e)\n    return r`},cpp:{sig:`vector<double> frame_energy(vector<double>& samples, int fs) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<double> frame_energy(vector<double>& samples, int fs) {\n    vector<double> r;\n    for(int i=0;i+fs<=(int)samples.size();i+=fs){\n        double e=0; for(int j=i;j<i+fs;j++) e+=samples[j]*samples[j];\n        r.push_back(e);\n    }\n    return r;\n}`}},
+33:{py:{sig:`def invert_tree(root):`,sol:`def invert_tree(root):\n    if not root: return None\n    root.left, root.right = root.right, root.left\n    invert_tree(root.left); invert_tree(root.right)\n    return root`},cpp:{sig:`TreeNode* invert_tree(TreeNode* root) { }`,sol:`TreeNode* invert_tree(TreeNode* root) {\n    if (!root) return nullptr;\n    TreeNode* t=root->left; root->left=root->right; root->right=t;\n    invert_tree(root->left); invert_tree(root->right);\n    return root;\n}`}},
+34:{py:{sig:`def is_valid_bst(root):`,sol:`def is_valid_bst(root):\n    def check(n, lo, hi):\n        if not n: return True\n        if n.val <= lo or n.val >= hi: return False\n        return check(n.left, lo, n.val) and check(n.right, n.val, hi)\n    return check(root, float('-inf'), float('inf'))`},cpp:{sig:`bool is_valid_bst(TreeNode* root) { }`,sol:`#include <climits>\nbool check(TreeNode* n, long lo, long hi) {\n    if (!n) return true;\n    if (n->val<=lo||n->val>=hi) return false;\n    return check(n->left,lo,n->val)&&check(n->right,n->val,hi);\n}\nbool is_valid_bst(TreeNode* root) { return check(root,LONG_MIN,LONG_MAX); }`}},
+35:{py:{sig:`def coin_change(coins, amount):`,sol:`def coin_change(coins, amount):\n    dp = [float('inf')]*(amount+1); dp[0]=0\n    for i in range(1,amount+1):\n        for c in coins:\n            if c<=i and dp[i-c]+1<dp[i]: dp[i]=dp[i-c]+1\n    return dp[amount] if dp[amount]!=float('inf') else -1`},cpp:{sig:`int coin_change(vector<int>& coins, int amount) { }`,sol:`#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint coin_change(vector<int>& coins, int amount) {\n    vector<int> dp(amount+1, amount+1); dp[0]=0;\n    for(int i=1;i<=amount;i++)\n        for(int c:coins) if(c<=i) dp[i]=min(dp[i],dp[i-c]+1);\n    return dp[amount]>amount ? -1 : dp[amount];\n}`}},
+36:{py:{sig:`def bfs_distance(graph, start):`,sol:`def bfs_distance(graph, start):\n    d, q = {start:0}, [start]\n    while q:\n        n = q.pop(0)\n        for nb in graph.get(n,[]):\n            if nb not in d: d[nb]=d[n]+1; q.append(nb)\n    return d`},cpp:{sig:`unordered_map<int,int> bfs_distance(\n    unordered_map<int,vector<int>>& graph, int start) { }`,sol:`#include <unordered_map>\n#include <vector>\n#include <queue>\nusing namespace std;\n\nunordered_map<int,int> bfs_distance(\n    unordered_map<int,vector<int>>& graph, int start) {\n    unordered_map<int,int> d; d[start]=0;\n    queue<int> q; q.push(start);\n    while(!q.empty()){\n        int n=q.front();q.pop();\n        for(int nb:graph[n]) if(!d.count(nb)){d[nb]=d[n]+1;q.push(nb);}\n    }\n    return d;\n}`}},
+37:{py:{sig:`class MinStack:\n    def push(self, val):\n    def pop(self):\n    def top(self):\n    def get_min(self):`,sol:`class MinStack:\n    def __init__(self): self.s, self.m = [], []\n    def push(self, v):\n        self.s.append(v)\n        if not self.m or v<=self.m[-1]: self.m.append(v)\n    def pop(self):\n        v=self.s.pop()\n        if v==self.m[-1]: self.m.pop()\n    def top(self): return self.s[-1]\n    def get_min(self): return self.m[-1]`},cpp:{sig:`class MinStack {\npublic:\n    void push(int val);\n    void pop();\n    int top();\n    int getMin();\n};`,sol:`#include <stack>\nusing namespace std;\n\nclass MinStack {\n    stack<int> s, m;\npublic:\n    void push(int v){s.push(v);if(m.empty()||v<=m.top())m.push(v);}\n    void pop(){if(s.top()==m.top())m.pop();s.pop();}\n    int top(){return s.top();}\n    int getMin(){return m.top();}\n};`}},
+38:{py:{sig:`class CircBuf:\n    def __init__(self, size):\n    def write(self, sample):\n    def read(self):`,sol:`class CircBuf:\n    def __init__(self, sz):\n        self.b=[0]*sz; self.sz=sz; self.w=self.r=self.c=0\n    def write(self, s):\n        self.b[self.w]=s; self.w=(self.w+1)%self.sz\n        if self.c<self.sz: self.c+=1\n        else: self.r=(self.r+1)%self.sz\n    def read(self):\n        if not self.c: return None\n        v=self.b[self.r]; self.r=(self.r+1)%self.sz; self.c-=1\n        return v`},cpp:{sig:`class CircBuf {\npublic:\n    CircBuf(int size);\n    void write(double sample);\n    double read();\n};`,sol:`#include <vector>\nusing namespace std;\n\nclass CircBuf {\n    vector<double> b; int sz,w,r,c;\npublic:\n    CircBuf(int size):b(size,0),sz(size),w(0),r(0),c(0){}\n    void write(double s){\n        b[w]=s; w=(w+1)%sz;\n        if(c<sz) c++; else r=(r+1)%sz;\n    }\n    double read(){\n        if(!c) return -1;\n        double v=b[r]; r=(r+1)%sz; c--; return v;\n    }\n};`}},
+39:{py:{sig:`def detect_peaks(samples, threshold):`,sol:`def detect_peaks(samples, threshold):\n    p = []\n    for i in range(1, len(samples)-1):\n        if samples[i]>threshold and samples[i]>samples[i-1] and samples[i]>samples[i+1]:\n            p.append(i)\n    return p`},cpp:{sig:`vector<int> detect_peaks(vector<double>& samples, double threshold) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<int> detect_peaks(vector<double>& samples, double threshold) {\n    vector<int> p;\n    for(int i=1;i<(int)samples.size()-1;i++)\n        if(samples[i]>threshold&&samples[i]>samples[i-1]&&samples[i]>samples[i+1])\n            p.push_back(i);\n    return p;\n}`}},
+40:{py:{sig:`def convolve(signal, kernel):`,sol:`def convolve(signal, kernel):\n    o = [0]*(len(signal)+len(kernel)-1)\n    for i in range(len(signal)):\n        for j in range(len(kernel)): o[i+j]+=signal[i]*kernel[j]\n    return o`},cpp:{sig:`vector<double> convolve(vector<double>& signal, vector<double>& kernel) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<double> convolve(vector<double>& signal, vector<double>& kernel) {\n    vector<double> o(signal.size()+kernel.size()-1, 0);\n    for(int i=0;i<(int)signal.size();i++)\n        for(int j=0;j<(int)kernel.size();j++) o[i+j]+=signal[i]*kernel[j];\n    return o;\n}`}},
+57:{py:{sig:`def lcs(s1, s2):`,sol:`def lcs(s1, s2):\n    m, n = len(s1), len(s2)\n    dp = [[0]*(n+1) for _ in range(m+1)]\n    for i in range(1,m+1):\n        for j in range(1,n+1):\n            dp[i][j] = dp[i-1][j-1]+1 if s1[i-1]==s2[j-1] else max(dp[i-1][j],dp[i][j-1])\n    return dp[m][n]`},cpp:{sig:`int lcs(string s1, string s2) { }`,sol:`#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint lcs(string s1, string s2) {\n    int m=s1.size(),n=s2.size();\n    vector<vector<int>> dp(m+1,vector<int>(n+1,0));\n    for(int i=1;i<=m;i++) for(int j=1;j<=n;j++)\n        dp[i][j]=s1[i-1]==s2[j-1]?dp[i-1][j-1]+1:max(dp[i-1][j],dp[i][j-1]);\n    return dp[m][n];\n}`}},
+58:{py:{sig:`def num_islands(grid):`,sol:`def num_islands(grid):\n    c = 0\n    def dfs(i, j):\n        if i<0 or i>=len(grid) or j<0 or j>=len(grid[0]) or grid[i][j]=='0': return\n        grid[i][j]='0'\n        dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1)\n    for i in range(len(grid)):\n        for j in range(len(grid[0])):\n            if grid[i][j]=='1': c+=1; dfs(i,j)\n    return c`},cpp:{sig:`int num_islands(vector<vector<char>>& grid) { }`,sol:`#include <vector>\nusing namespace std;\nvoid dfs(vector<vector<char>>& g,int i,int j){\n    if(i<0||i>=(int)g.size()||j<0||j>=(int)g[0].size()||g[i][j]=='0') return;\n    g[i][j]='0'; dfs(g,i+1,j);dfs(g,i-1,j);dfs(g,i,j+1);dfs(g,i,j-1);\n}\nint num_islands(vector<vector<char>>& grid) {\n    int c=0;\n    for(int i=0;i<(int)grid.size();i++) for(int j=0;j<(int)grid[0].size();j++)\n        if(grid[i][j]=='1'){c++;dfs(grid,i,j);}\n    return c;\n}`}},
+59:{py:{sig:`def lca(root, p, q):`,sol:`def lca(root, p, q):\n    while root:\n        if p<root.val and q<root.val: root=root.left\n        elif p>root.val and q>root.val: root=root.right\n        else: return root`},cpp:{sig:`TreeNode* lca(TreeNode* root, int p, int q) { }`,sol:`TreeNode* lca(TreeNode* root, int p, int q) {\n    while(root){\n        if(p<root->val&&q<root->val) root=root->left;\n        else if(p>root->val&&q>root->val) root=root->right;\n        else return root;\n    }\n    return nullptr;\n}`}},
+60:{py:{sig:`def topo_sort(n, edges):`,sol:`def topo_sort(n, edges):\n    adj=[[] for _ in range(n)]; deg=[0]*n\n    for f,t in edges: adj[f].append(t); deg[t]+=1\n    q=[i for i in range(n) if deg[i]==0]; r=[]\n    while q:\n        nd=q.pop(0); r.append(nd)\n        for nb in adj[nd]:\n            deg[nb]-=1\n            if deg[nb]==0: q.append(nb)\n    return r`},cpp:{sig:`vector<int> topo_sort(int n, vector<vector<int>>& edges) { }`,sol:`#include <vector>\n#include <queue>\nusing namespace std;\n\nvector<int> topo_sort(int n, vector<vector<int>>& edges) {\n    vector<vector<int>> adj(n); vector<int> deg(n,0);\n    for(auto& e:edges){adj[e[0]].push_back(e[1]);deg[e[1]]++;}\n    queue<int> q; for(int i=0;i<n;i++) if(!deg[i]) q.push(i);\n    vector<int> r;\n    while(!q.empty()){int nd=q.front();q.pop();r.push_back(nd);for(int nb:adj[nd]){deg[nb]--;if(!deg[nb])q.push(nb);}}\n    return r;\n}`}},
+61:{py:{sig:`def rms_level(samples, frame_size):`,sol:`import math\ndef rms_level(samples, frame_size):\n    r = []\n    for i in range(0,len(samples)-frame_size+1,frame_size):\n        s = sum(x*x for x in samples[i:i+frame_size])\n        r.append(math.sqrt(s/frame_size))\n    return r`},cpp:{sig:`vector<double> rms_level(vector<double>& samples, int fs) { }`,sol:`#include <vector>\n#include <cmath>\nusing namespace std;\n\nvector<double> rms_level(vector<double>& samples, int fs) {\n    vector<double> r;\n    for(int i=0;i+fs<=(int)samples.size();i+=fs){\n        double s=0; for(int j=i;j<i+fs;j++) s+=samples[j]*samples[j];\n        r.push_back(sqrt(s/fs));\n    }\n    return r;\n}`}},
+62:{py:{sig:`def noise_gate(samples, frame_size, threshold):`,sol:`import math\ndef noise_gate(samples, frame_size, threshold):\n    o = list(samples)\n    for i in range(0,len(o)-frame_size+1,frame_size):\n        s = sum(x*x for x in o[i:i+frame_size])\n        if math.sqrt(s/frame_size)<threshold:\n            for j in range(i,i+frame_size): o[j]=0\n    return o`},cpp:{sig:`vector<double> noise_gate(vector<double>& samples, int fs, double thresh) { }`,sol:`#include <vector>\n#include <cmath>\nusing namespace std;\n\nvector<double> noise_gate(vector<double>& samples, int fs, double thresh) {\n    vector<double> o=samples;\n    for(int i=0;i+fs<=(int)o.size();i+=fs){\n        double s=0; for(int j=i;j<i+fs;j++) s+=o[j]*o[j];\n        if(sqrt(s/fs)<thresh) for(int j=i;j<i+fs;j++) o[j]=0;\n    }\n    return o;\n}`}},
+63:{py:{sig:`def amp_to_db(amp):\ndef db_to_amp(db):`,sol:`import math\ndef amp_to_db(amp):\n    if amp==0: return float('-inf')\n    return 20*math.log10(abs(amp))\ndef db_to_amp(db):\n    return 10**(db/20)`},cpp:{sig:`double amp_to_db(double amp) { }\ndouble db_to_amp(double db) { }`,sol:`#include <cmath>\n#include <limits>\nusing namespace std;\n\ndouble amp_to_db(double amp) {\n    if(amp==0) return -numeric_limits<double>::infinity();\n    return 20.0*log10(abs(amp));\n}\ndouble db_to_amp(double db) { return pow(10.0,db/20.0); }`}},
+64:{py:{sig:`def downsample(samples, factor):`,sol:`def downsample(samples, factor):\n    filt = []\n    for i in range(len(samples)-factor+1):\n        filt.append(sum(samples[i:i+factor])/factor)\n    o = []\n    for i in range(0,len(filt),factor): o.append(filt[i])\n    return o`},cpp:{sig:`vector<double> downsample(vector<double>& samples, int factor) { }`,sol:`#include <vector>\nusing namespace std;\n\nvector<double> downsample(vector<double>& samples, int factor) {\n    vector<double> filt;\n    for(int i=0;i+factor<=(int)samples.size();i++){\n        double s=0; for(int j=0;j<factor;j++) s+=samples[i+j];\n        filt.push_back(s/factor);\n    }\n    vector<double> o;\n    for(int i=0;i<(int)filt.size();i+=factor) o.push_back(filt[i]);\n    return o;\n}`}}
+};
+
+const LANG_NAMES={js:'JavaScript',py:'Python',cpp:'C++',sql:'SQL'};
+const LANG_CLASSES={js:'lang-js',py:'lang-py',cpp:'lang-cpp',sql:'lang-sql'};
+
+function getLangs(id){
+  const a=['js'];
+  const ld=LANGS[id];
+  if(ld){if(ld.py)a.push('py');if(ld.cpp)a.push('cpp');if(ld.sql)a.push('sql');}
+  return a;
+}
+function getSig(ch,lang){
+  if(lang==='js') return ch.sig;
+  const ld=LANGS[ch.id];
+  return ld&&ld[lang]?ld[lang].sig:ch.sig;
+}
+function getSol(ch,lang){
+  if(lang==='js') return ch.solution;
+  const ld=LANGS[ch.id];
+  return ld&&ld[lang]?ld[lang].sol:ch.solution;
+}
+function renderLangRow(ch){
+  const row=document.getElementById('lang-row');
+  const langs=getLangs(ch.id);
+  if(!langs.includes(currentLang)) currentLang='js';
+  row.innerHTML=langs.map(l=>
+    `<button class="lang-btn ${LANG_CLASSES[l]}${l===currentLang?' active':''}" onclick="setLang('${l}')">${LANG_NAMES[l]}</button>`
+  ).join('')+(currentLang!=='js'?'<span class="lang-note">Tests run via server</span>':'');
+  document.getElementById('lang-label').textContent=currentLang!=='js'?' · '+LANG_NAMES[currentLang]:'';
+}
+function setLang(lang){
+  if(!currentCh)return;
+  currentLang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lang-btn.${LANG_CLASSES[lang]}`)?.classList.add('active');
+  document.getElementById('ch-signature').textContent=getSig(currentCh,lang);
+  document.getElementById('code-editor').value=getSig(currentCh,lang);
+  document.getElementById('ch-solution').textContent=getSol(currentCh,lang);
+  const runBtn=document.getElementById('run-btn');
+  runBtn.textContent=lang==='js'?'▸ RUN TESTS':'▸ RUN ('+LANG_NAMES[lang]+')';
+  
+  document.getElementById('lang-label').textContent=lang!=='js'?' · '+LANG_NAMES[lang]:'';
+  const row=document.getElementById('lang-row');
+  const existNote=row.querySelector('.lang-note');
+  if(existNote) existNote.remove();
+  if(lang!=='js') row.insertAdjacentHTML('beforeend','<span class="lang-note">Tests run via server</span>');
+  document.getElementById('test-results').classList.add('hidden');
+  document.getElementById('all-pass').classList.add('hidden');
+  setTimeout(runGuidance, 50);
+}
+
+// ============================================================
+// CONFIG & STATE
+// ============================================================
+const TIER_NAMES={1:"FUNDAMENTALS",2:"PATTERNS",3:"DEPTH"};
+const TIER_COLORS={1:"#22c55e",2:"#f59e0b",3:"#ef4444"};
+const TIER_TO_LC_LABEL={1:"EASY",2:"MEDIUM",3:"HARD"};
+const CAT_ICONS={"Variables & Logic":"⚡",Arrays:"▦",Strings:"✎",Logic:"◇","Hash Maps":"⌗","Sliding Window":"◫","Binary Trees":"⌥","Two Pointers":"⇄","Dynamic Programming":"◈","Audio DSP":"♫",Stacks:"▤",Sorting:"↕","Binary Search":"◎","Linked Lists":"⟿",Recursion:"∞",Graphs:"⬡"};
+
+let progress={}, currentCh=null, currentLang='js';
+function load(){try{const s=localStorage.getItem('codegrind-v2');if(s)progress=JSON.parse(s);}catch(e){}}
+function save(){try{localStorage.setItem('codegrind-v2',JSON.stringify(progress));}catch(e){}}
+function completed(){return Object.keys(progress).length;}
+function curTier(){const c=completed();return c<16?1:c<32?2:3;}
+function streak(){
+  const d=Object.values(progress).map(p=>p.date).filter(Boolean).sort().reverse();
+  if(!d.length)return 0;
+  const td=new Date().toISOString().split('T')[0],yd=new Date(Date.now()-864e5).toISOString().split('T')[0];
+  if(d[0]!==td&&d[0]!==yd)return 0;
+  let s=1;for(let i=1;i<d.length;i++){const diff=(new Date(d[i-1])-new Date(d[i]))/864e5;if(diff<=1&&d[i]!==d[i-1])s++;else if(d[i]===d[i-1])continue;else break;}
+  return s;
+}
+function nextCh(){
+  const t=curTier();
+  const a=C.filter(c=>c.t<=t&&!progress[c.id]);
+  if(a.length)return a[0];
+  const b=C.filter(c=>!progress[c.id]);
+  return b.length?b[0]:null;
+}
+
+// ============================================================
+// TEST RUNNER
+// ============================================================
+function deepEq(a,b){
+  if(a===b)return true;
+  // Coerce string/number comparisons (AI sometimes mismatches types in test expectations)
+  if(typeof a==='number'&&typeof b==='string'){ b=Number(b); if(!isNaN(b)) return Math.abs(a-b)<1e-6; return false; }
+  if(typeof a==='string'&&typeof b==='number'){ a=Number(a); if(!isNaN(a)) return Math.abs(a-b)<1e-6; return false; }
+  if(typeof a!==typeof b)return false;
+  if(Array.isArray(a)&&Array.isArray(b)){
+    if(a.length!==b.length)return false;
+    for(let i=0;i<a.length;i++)if(!deepEq(a[i],b[i]))return false;
+    return true;
+  }
+  if(typeof a==='object'&&a!==null&&b!==null){
+    const ka=Object.keys(a).sort(),kb=Object.keys(b).sort();
+    if(ka.length!==kb.length)return false;
+    for(let i=0;i<ka.length;i++){if(ka[i]!==kb[i])return false;if(!deepEq(a[ka[i]],b[kb[i]]))return false;}
+    return true;
+  }
+  if(typeof a==='number'&&typeof b==='number') return Math.abs(a-b)<1e-6;
+  return false;
+}
+
+function runTests(){
+  if(!currentCh)return;
+  if(currentLang==='js') return runTestsJS();
+  return runTestsServer();
+}
+
+function runTestsJS(){
+  const code=document.getElementById('code-editor').value;
+  const tests=currentCh.tests;
+  const listEl=document.getElementById('test-list');
+  listEl.innerHTML='';
+  document.getElementById('test-results').classList.remove('hidden');
+  document.getElementById('all-pass').classList.add('hidden');
+
+  let allPass=true;
+  for(const test of tests){
+    const div=document.createElement('div');
+    div.className='test-case';
+    try {
+      const setup=currentCh.setup||'';
+      const full=setup+'\n'+code+'\n('+test.call+')';
+      const result=eval(full);
+      const pass=deepEq(result,test.expect);
+      if(!pass)allPass=false;
+      div.className='test-case '+(pass?'test-pass':'test-fail');
+      div.innerHTML=`<span class="test-icon">${pass?'✓':'✗'}</span><div class="test-detail">
+        <div class="test-label-text"><code>${esc(test.call)}</code></div>
+        <div class="test-expected">Expected: <code>${esc(JSON.stringify(test.expect))}</code></div>
+        ${pass?'':`<div class="test-got">Got: <code>${esc(JSON.stringify(result))}</code></div>`}
+      </div>`;
+    } catch(e) {
+      allPass=false;
+      div.className='test-case test-fail';
+      div.innerHTML=`<span class="test-icon">✗</span><div class="test-detail">
+        <div class="test-label-text"><code>${esc(test.call)}</code></div>
+        <div class="test-error">Error: ${esc(e.message)}</div>
+      </div>`;
+    }
+    listEl.appendChild(div);
+  }
+  if(allPass){
+    document.getElementById('all-pass').classList.remove('hidden');
+  }
+}
+
+async function runTestsServer(){
+  const code=document.getElementById('code-editor').value;
+  const tests=currentCh.tests;
+  const listEl=document.getElementById('test-list');
+  listEl.innerHTML='';
+  document.getElementById('test-results').classList.remove('hidden');
+  document.getElementById('all-pass').classList.add('hidden');
+
+  const langKey={py:'py',cpp:'cpp',sql:'sql'}[currentLang];
+  if(!langKey){ listEl.innerHTML='<div class="test-case test-fail"><span class="test-icon">✗</span><div class="test-detail"><div class="test-error">Unsupported language for testing</div></div></div>'; return; }
+
+  // Check if backend is available
+  const backendUrl=getBackendUrl();
+  if(!backendUrl){
+    listEl.innerHTML='<div class="test-case test-fail"><span class="test-icon">⚠</span><div class="test-detail"><div class="test-error">Connect to Code Grind server to run '+LANG_NAMES[currentLang]+' tests. JS tests always work in browser.</div></div></div>';
+    return;
+  }
+
+  // Show loading
+  listEl.innerHTML='<div class="test-case" style="color:#555;text-align:center;padding:16px">Running '+LANG_NAMES[currentLang]+' tests on server...</div>';
+
+  try{
+    const resp=await fetch(backendUrl+'/codegrind/run-tests',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal:AbortSignal.timeout(20000),
+      body:JSON.stringify({
+        language:langKey,
+        code,
+        tests:tests.map(t=>({call:t.call,expect:t.expect})),
+        challengeId:currentCh.id,
+        setup:currentCh.setup||''
+      })
+    });
+
+    if(!resp.ok) throw new Error('Server error ('+resp.status+')');
+    const data=await resp.json();
+
+    listEl.innerHTML='';
+    let allPass=true;
+
+    data.results.forEach((r,i)=>{
+      const test=tests[i];
+      const div=document.createElement('div');
+      if(r.error){
+        allPass=false;
+        div.className='test-case test-fail';
+        div.innerHTML=`<span class="test-icon">✗</span><div class="test-detail">
+          <div class="test-label-text"><code>${esc(test.call)}</code></div>
+          <div class="test-error">${esc(r.error)}</div>
+        </div>`;
+      } else {
+        const pass=r.pass;
+        if(!pass)allPass=false;
+        div.className='test-case '+(pass?'test-pass':'test-fail');
+        div.innerHTML=`<span class="test-icon">${pass?'✓':'✗'}</span><div class="test-detail">
+          <div class="test-label-text"><code>${esc(test.call)}</code></div>
+          <div class="test-expected">Expected: <code>${esc(JSON.stringify(r.expected))}</code></div>
+          ${pass?'':`<div class="test-got">Got: <code>${esc(JSON.stringify(r.result))}</code></div>`}
+        </div>`;
+      }
+      listEl.appendChild(div);
+    });
+
+    if(allPass) document.getElementById('all-pass').classList.remove('hidden');
+  }catch(e){
+    listEl.innerHTML=`<div class="test-case test-fail"><span class="test-icon">✗</span><div class="test-detail">
+      <div class="test-error">${esc(e.message)}</div>
+      <div style="color:#555;font-size:0.7rem;margin-top:4px">Server may be offline. Switch to JavaScript to run tests in browser.</div>
+    </div></div>`;
+  }
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ============================================================
+// UI RENDERING
+// ============================================================
+function renderHome(){
+  const cc=completed(),tot=C.length,t=curTier(),sk=streak(),pct=Math.round(cc/tot*100);
+  document.getElementById('solved-count').textContent=cc;
+  document.getElementById('remaining-count').textContent=tot-cc;
+  document.getElementById('streak-count').textContent=sk;
+  document.getElementById('streak-count').style.color=sk>0?'#f59e0b':'#555';
+  document.getElementById('tier-display').textContent='T'+t;
+  document.getElementById('tier-display').style.color=TIER_COLORS[t];
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=pct+'% complete';
+  const nx=nextCh(),btn=document.getElementById('next-btn');
+  btn.textContent=nx?'▸ NEXT: '+nx.title:'✓ ALL COMPLETE';
+
+  const tl=document.getElementById('tier-list');tl.innerHTML='';
+  [1,2,3].forEach(tier=>{
+    const chs=C.filter(c=>c.t===tier&&!c._lcSlot),done=chs.filter(c=>progress[c.id]).length,locked=tier>t;
+    const allDone=done===chs.length&&done>0;
+    const hasCustom=chs.some(c=>c._generated);
+    // Count LC slot completion separately
+    const lcSlot=C.find(c=>c.t===tier&&c._lcSlot);
+    const lcDone=lcSlot&&progress[lcSlot.id];
+    let h=`<div class="tier-section${locked?' locked':''}"><div class="tier-header" style="flex-wrap:wrap">
+      <span class="tier-dot" style="background:${TIER_COLORS[tier]}"></span>
+      <span class="tier-name">TIER ${tier}: ${TIER_NAMES[tier]}</span>
+      ${hasCustom?`<span style="font-size:0.55rem;color:#888;background:#1a1a1a;padding:1px 6px;border-radius:3px;margin-left:4px">${chs.some(c=>c._source==='leetcode')?'🔗 LEETCODE':'⚡ AI-GENERATED'}</span>`:''}
+      <span class="tier-count">${done}/${chs.length}</span>
+      ${locked?'<span style="font-size:0.75rem">🔒</span>':''}
+      ${allDone?`<button onclick="resetTier(${tier})" style="margin-left:8px;background:none;border:1px solid ${TIER_COLORS[tier]};color:${TIER_COLORS[tier]};padding:2px 10px;border-radius:4px;cursor:pointer;font-size:0.65rem;font-family:inherit;letter-spacing:0.05em">↻ RESET</button>`:''}
+      ${!locked?`<button onclick="refreshTier(${tier},'ai')" style="margin-left:${allDone?'4':'8'}px;background:none;border:1px solid ${TIER_COLORS[tier]};color:${TIER_COLORS[tier]};padding:2px 10px;border-radius:4px;cursor:pointer;font-size:0.65rem;font-family:inherit;letter-spacing:0.05em" title="AI generates original challenges">⚡ AI NEW</button>`:''}
+      ${hasCustom&&!locked?`<button onclick="restoreOriginals(${tier})" style="margin-left:4px;background:none;border:1px solid #333;color:#555;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.6rem;font-family:inherit">RESTORE ORIGINALS</button>`:''}
+    </div><div class="challenge-list">`;
+    chs.forEach(c=>{
+      const d=!!progress[c.id];
+      h+=`<button class="challenge-item" style="border-left-color:${d?TIER_COLORS[tier]:'#333'};opacity:${d?0.6:1}"
+        onclick="${locked?'':`openChallenge(${c.id})`}" ${locked?'disabled':''}>
+        <span class="item-icon">${d?'✓':(CAT_ICONS[c.cat]||'◆')}</span>
+        <span class="item-title">${c.title}</span>
+        <span class="item-cat">${c.cat}</span>
+      </button>`;
+    });
+    // LC SLOT — dedicated LeetCode challenge at bottom of each tier
+    if(!locked){
+      const lcTitle=lcSlot?lcSlot.title:'Load a LeetCode Challenge';
+      const lcCat=lcSlot?lcSlot.cat:'Random';
+      const lcIcon=lcDone?'✓':'🔗';
+      h+=`<button class="lc-slot" style="opacity:${lcDone?0.6:1}"
+        onclick="openLeetCode(${tier})" id="lc-slot-${tier}">
+        <span class="item-icon">${lcIcon}</span>
+        <span class="item-title">${lcTitle}</span>
+        <span class="lc-badge">LEETCODE ${TIER_TO_LC_LABEL[tier]}</span>
+        <span class="item-cat">${lcCat}</span>
+      </button>`;
+    }
+    h+='</div></div>';
+    tl.insertAdjacentHTML('beforeend',h);
+  });
+  document.getElementById('reset-btn').classList.toggle('hidden',cc===0);
+}
+
+function openChallenge(id){
+  currentCh=C.find(c=>c.id===id);if(!currentCh)return;
+  document.getElementById('home-view').classList.add('hidden');
+  document.getElementById('challenge-view').classList.remove('hidden');
+  const ch=currentCh;
+  document.getElementById('ch-tier-badge').textContent='TIER '+ch.t;
+  document.getElementById('ch-tier-badge').style.background=TIER_COLORS[ch.t];
+  document.getElementById('ch-category').textContent=(CAT_ICONS[ch.cat]||'◆')+' '+ch.cat;
+  document.getElementById('ch-title').textContent=ch.title;
+  document.getElementById('ch-prompt').textContent=ch.prompt;
+  document.getElementById('ch-signature').textContent=getSig(ch,currentLang);
+  document.getElementById('ch-hint').textContent=ch.hint;
+  document.getElementById('ch-solution').textContent=getSol(ch,currentLang);
+  document.getElementById('ch-concept').textContent=ch.concept;
+  // Pre-fill editor with signature
+  document.getElementById('code-editor').value=getSig(ch,currentLang);
+  // Render language tabs
+  renderLangRow(ch);
+  // Update run button state
+  const runBtn=document.getElementById('run-btn');
+  runBtn.textContent=currentLang==='js'?'▸ RUN TESTS':'▸ RUN ('+LANG_NAMES[currentLang]+')';
+  
+  // Reset panels
+  document.getElementById('hint-box').classList.add('hidden');
+  document.getElementById('solution-box').classList.add('hidden');
+  document.getElementById('test-results').classList.add('hidden');
+  document.getElementById('all-pass').classList.add('hidden');
+  document.getElementById('ai-panel').classList.add('hidden');
+  document.getElementById('guidance-panel').innerHTML = '';
+  document.getElementById('editor-wrap').classList.remove('has-errors', 'has-warnings');
+  updateCompleteBtn();
+  window.scrollTo(0,0);
+  setTimeout(runGuidance, 100);
+}
+function openNextChallenge(){const n=nextCh();if(n)openChallenge(n.id);}
+function showHome(){
+  document.getElementById('challenge-view').classList.add('hidden');
+  document.getElementById('home-view').classList.remove('hidden');
+  document.getElementById('guidance-panel').innerHTML = '';
+  document.getElementById('editor-wrap').classList.remove('has-errors', 'has-warnings');
+  renderHome();window.scrollTo(0,0);
+}
+function showHint(){document.getElementById('hint-box').classList.toggle('hidden');}
+function showSolution(){document.getElementById('solution-box').classList.toggle('hidden');}
+function updateCompleteBtn(){
+  if(!currentCh)return;
+  const btn=document.getElementById('complete-btn');
+  if(progress[currentCh.id]){btn.textContent='↩ MARK INCOMPLETE';btn.className='undo-btn';}
+  else{btn.textContent='✓ MARK COMPLETE';btn.className='complete-btn';}
+}
+function toggleComplete(){
+  if(!currentCh)return;
+  if(progress[currentCh.id])delete progress[currentCh.id];
+  else progress[currentCh.id]={completed:true,date:new Date().toISOString().split('T')[0]};
+  save();updateCompleteBtn();
+}
+function resetAll(){
+  if(!confirm('Reset all progress?'))return;
+  progress={};save();currentCh=null;showHome();
+}
+function resetTier(tier){
+  const chs=C.filter(c=>c.t===tier);
+  const tierName='Tier '+tier+': '+TIER_NAMES[tier];
+  const afterCount=completed()-chs.filter(c=>progress[c.id]).length;
+  const afterTier=afterCount<16?1:afterCount<32?2:3;
+  let msg='Reset '+tierName+'?\n'+chs.length+' challenges will be marked incomplete.';
+  if(afterTier<curTier()) msg+='\n\n⚠ This will lock Tier '+(afterTier+1)+' until you re-complete enough challenges.';
+  if(!confirm(msg))return;
+  chs.forEach(c=>delete progress[c.id]);
+  save();showHome();
+}
+
+let _genNextId=1000;
+function getNextGenId(){return _genNextId++;}
+
+async function refreshTier(tier, source='ai'){
+  const backendUrl=getBackendUrl();
+  if(!backendUrl){
+    alert('Connect to Code Grind server first (Settings → Backend URL).\n\nThe server uses AI to generate new challenges.');
+    return;
+  }
+  const isLC=source==='leetcode';
+  const label=isLC?'LeetCode problems':'AI-generated challenges';
+  if(!confirm('Load new '+label+' for Tier '+tier+'?\n\nThis replaces current challenges and resets progress for this tier.\nRequires server connection + API key.'+(isLC?'\n\nLeetCode problems are fetched from a public API, then converted to Code Grind format by AI.':''))){
+    return;
+  }
+
+  // Show loading
+  const tierSections=document.querySelectorAll('.tier-section');
+  const section=tierSections[tier-1];
+  if(section){
+    const list=section.querySelector('.challenge-list');
+    list.innerHTML=`<div style="text-align:center;padding:24px;color:#555;font-size:0.8rem"><span class="gen-spinner">⚡</span> ${isLC?'Fetching LeetCode problems & converting...':'Generating new challenges with AI...'}<br><span style="font-size:0.6rem;color:#333">${isLC?'This takes ~30-60s (fetching + AI conversion)':'This takes ~15-30s'}</span></div>`;
+    if(!document.getElementById('gen-spin-style')){
+      const st=document.createElement('style');
+      st.id='gen-spin-style';
+      st.textContent='@keyframes genspin{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}.gen-spinner{animation:genspin 1s infinite;font-size:1.2rem;}';
+      document.head.appendChild(st);
+    }
+  }
+
+  try{
+    const existingTitles=C.filter(c=>c.t===tier).map(c=>c.title);
+    const resp=await fetch(backendUrl+'/codegrind/generate-challenges',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal:AbortSignal.timeout(isLC?90000:60000),
+      body:JSON.stringify({tier,count:C.filter(c=>c.t===tier).length,existingTitles,source})
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({error:'Server error'}));
+      throw new Error(err.error||'Server error ('+resp.status+')');
+    }
+
+    const data=await resp.json();
+    if(!data.challenges||!data.challenges.length){
+      throw new Error('No challenges generated. Try again.');
+    }
+
+    // Remove old tier challenges from C
+    const oldIds=C.filter(c=>c.t===tier).map(c=>c.id);
+    oldIds.forEach(id=>{
+      const idx=C.findIndex(c=>c.id===id);
+      if(idx>=0) C.splice(idx,1);
+      delete LANGS[id];
+      delete progress[id];
+    });
+
+    // Insert new challenges
+    const newChallenges=[];
+    data.challenges.forEach((ch,i)=>{
+      const id=getNextGenId();
+      const newCh={
+        id, t:tier, cat:ch.cat||'Logic',
+        title:ch.title,
+        prompt:ch.prompt,
+        sig:ch.js?.sig||'function solve() { }',
+        hint:ch.hint||'Think about the problem step by step.',
+        solution:ch.js?.solution||'// solution not available',
+        concept:ch.concept||'',
+        tests:ch.tests||[],
+        _generated:true,
+        _source:ch._source||source||'ai'
+      };
+      C.push(newCh);
+      newChallenges.push(newCh);
+
+      // Add LANGS entry
+      const langEntry={};
+      if(ch.py){langEntry.py={sig:ch.py.sig,sol:ch.py.solution};}
+      if(ch.cpp){langEntry.cpp={sig:ch.cpp.sig,sol:ch.cpp.solution};}
+      if(Object.keys(langEntry).length) LANGS[id]=langEntry;
+    });
+
+    // Sort C by tier then id
+    C.sort((a,b)=>a.t===b.t?a.id-b.id:a.t-b.t);
+
+    // Save custom challenges to persist across reloads
+    saveCustomChallenges(tier, newChallenges);
+
+    save(); // save progress (cleared)
+    showHome();
+
+    console.log('[GEN] Injected '+newChallenges.length+' new Tier '+tier+' challenges');
+
+  }catch(e){
+    alert('Challenge generation failed:\n'+e.message);
+    showHome(); // re-render clean state
+  }
+}
+
+// Persist generated challenges across reloads
+function saveCustomChallenges(tier, challenges){
+  try{
+    const store=JSON.parse(localStorage.getItem('codegrind-custom')||'{}');
+    store[tier]=challenges.map(c=>({
+      id:c.id,t:c.t,cat:c.cat,title:c.title,prompt:c.prompt,
+      sig:c.sig,hint:c.hint,solution:c.solution,concept:c.concept,
+      tests:c.tests,_generated:true,_source:c._source||'ai',
+      _langs:LANGS[c.id]||null
+    }));
+    localStorage.setItem('codegrind-custom',JSON.stringify(store));
+  }catch(e){console.warn('Failed to save custom challenges:',e);}
+}
+
+function loadCustomChallenges(){
+  try{
+    const store=JSON.parse(localStorage.getItem('codegrind-custom')||'{}');
+    Object.entries(store).forEach(([tier,challenges])=>{
+      if(!challenges||!challenges.length) return;
+      // Remove original tier challenges
+      const t=parseInt(tier);
+      const oldIds=C.filter(c=>c.t===t).map(c=>c.id);
+      oldIds.forEach(id=>{
+        const idx=C.findIndex(c=>c.id===id);
+        if(idx>=0) C.splice(idx,1);
+        delete LANGS[id];
+      });
+      // Insert custom challenges
+      challenges.forEach(ch=>{
+        C.push({id:ch.id,t:ch.t,cat:ch.cat,title:ch.title,prompt:ch.prompt,
+          sig:ch.sig,hint:ch.hint,solution:ch.solution,concept:ch.concept,
+          tests:ch.tests,_generated:true,_source:ch._source||'ai'});
+        if(ch._langs) LANGS[ch.id]=ch._langs;
+        if(ch.id>=_genNextId) _genNextId=ch.id+1;
+      });
+    });
+    C.sort((a,b)=>a.t===b.t?a.id-b.id:a.t-b.t);
+  }catch(e){console.warn('Failed to load custom challenges:',e);}
+}
+
+function restoreOriginals(tier){
+  try{
+    const store=JSON.parse(localStorage.getItem('codegrind-custom')||'{}');
+    delete store[tier];
+    localStorage.setItem('codegrind-custom',JSON.stringify(store));
+  }catch(e){}
+  location.reload();
+}
+
+// ============================================================
+// LEETCODE DEDICATED SLOT
+// ============================================================
+const LC_SLOT_IDS={1:9001,2:9002,3:9003};
+
+function saveLcSlots(){
+  try{
+    const slots={};
+    [1,2,3].forEach(t=>{
+      const ch=C.find(c=>c.t===t&&c._lcSlot);
+      if(ch) slots[t]={id:ch.id,t:ch.t,cat:ch.cat,title:ch.title,prompt:ch.prompt,
+        sig:ch.sig,hint:ch.hint,solution:ch.solution,concept:ch.concept,
+        tests:ch.tests,_lcSlot:true,_source:'leetcode',_slug:ch._slug||'',
+        _lcUrl:ch._lcUrl||'',_langs:LANGS[ch.id]||null};
+    });
+    localStorage.setItem('codegrind-lc-slots',JSON.stringify(slots));
+  }catch(e){console.warn('LC slot save failed:',e);}
+}
+
+function loadLcSlots(){
+  try{
+    const raw=localStorage.getItem('codegrind-lc-slots');
+    if(!raw)return;
+    const slots=JSON.parse(raw);
+    Object.entries(slots).forEach(([tier,ch])=>{
+      // Remove any existing LC slot for this tier
+      const idx=C.findIndex(c=>c.t===Number(tier)&&c._lcSlot);
+      if(idx>=0) C.splice(idx,1);
+      C.push({id:ch.id,t:ch.t,cat:ch.cat,title:ch.title,prompt:ch.prompt,
+        sig:ch.sig,hint:ch.hint,solution:ch.solution,concept:ch.concept,
+        tests:ch.tests,_lcSlot:true,_source:'leetcode',_slug:ch._slug||'',
+        _lcUrl:ch._lcUrl||''});
+      if(ch._langs) LANGS[ch.id]=ch._langs;
+    });
+  }catch(e){console.warn('LC slot load failed:',e);}
+}
+
+// Track which slugs have been seen so we don't repeat
+function getUsedSlugs(){
+  try{
+    return JSON.parse(localStorage.getItem('codegrind-lc-used')||'[]');
+  }catch(e){return[];}
+}
+function addUsedSlug(slug){
+  try{
+    const used=getUsedSlugs();
+    if(!used.includes(slug)){used.push(slug);localStorage.setItem('codegrind-lc-used',JSON.stringify(used));}
+  }catch(e){}
+}
+
+async function openLeetCode(tier){
+  const existing=C.find(c=>c.t===tier&&c._lcSlot);
+
+  // If there's already a loaded LC challenge and it's not completed, just open it
+  if(existing&&!progress[existing.id]){
+    openChallenge(existing.id);
+    return;
+  }
+
+  // If completed, ask if they want a new one
+  if(existing&&progress[existing.id]){
+    if(!confirm('You completed "'+existing.title+'"! Load a new LeetCode '+TIER_TO_LC_LABEL[tier]+' problem?')){
+      openChallenge(existing.id);
+      return;
+    }
+  }
+
+  // Fetch new LC challenge
+  const backendUrl=getBackendUrl();
+  if(!backendUrl){
+    alert('Connect to Code Grind server first (Settings → Backend URL).\n\nServer converts LeetCode problems into editor format using AI.');
+    return;
+  }
+
+  // Show loading in the slot button
+  const slotBtn=document.getElementById('lc-slot-'+tier);
+  if(slotBtn){
+    slotBtn.innerHTML='<span class="item-icon gen-spinner">🔗</span><span class="item-title">Fetching LeetCode '+TIER_TO_LC_LABEL[tier]+' problem...</span><span class="lc-badge">LOADING</span>';
+    slotBtn.disabled=true;
+    if(!document.getElementById('gen-spin-style')){
+      const st=document.createElement('style');st.id='gen-spin-style';
+      st.textContent='@keyframes genspin{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}.gen-spinner{animation:genspin 1s infinite;font-size:1.2rem;}';
+      document.head.appendChild(st);
+    }
+  }
+
+  try{
+    const exclude=getUsedSlugs();
+    const resp=await fetch(backendUrl+'/codegrind/leetcode-challenge',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal:AbortSignal.timeout(60000),
+      body:JSON.stringify({tier,exclude})
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({error:'Server error'}));
+      throw new Error(err.error||'Request failed');
+    }
+
+    const data=await resp.json();
+    if(!data.challenge){throw new Error('No challenge returned');}
+    const ch=data.challenge;
+
+    // Remove old LC slot for this tier
+    const oldIdx=C.findIndex(c=>c.t===tier&&c._lcSlot);
+    if(oldIdx>=0){
+      delete progress[C[oldIdx].id];
+      C.splice(oldIdx,1);
+    }
+
+    // Create the challenge entry
+    const id=LC_SLOT_IDS[tier];
+    const newCh={
+      id, t:tier, cat:ch.cat||'Logic',
+      title:ch.title,
+      prompt:ch.prompt+(ch._lcUrl?'\n\n🔗 LeetCode: '+ch._lcUrl:''),
+      sig:ch.js?.sig||'function solve() { }',
+      hint:ch.hint||'Think step by step.',
+      solution:ch.js?.solution||'// solution not available',
+      concept:ch.concept||'',
+      tests:ch.tests||[],
+      _lcSlot:true,
+      _source:'leetcode',
+      _slug:data.slug||ch._slug||'',
+      _lcUrl:ch._lcUrl||''
+    };
+    C.push(newCh);
+
+    // Add language variants
+    const langEntry={};
+    if(ch.py){langEntry.py={sig:ch.py.sig,sol:ch.py.solution};}
+    if(ch.cpp){langEntry.cpp={sig:ch.cpp.sig,sol:ch.cpp.solution};}
+    if(Object.keys(langEntry).length) LANGS[id]=langEntry;
+
+    // Track this slug as used
+    if(data.slug) addUsedSlug(data.slug);
+
+    // Save and open
+    saveLcSlots();
+    save();
+    openChallenge(id);
+
+  }catch(e){
+    alert('LeetCode fetch failed: '+e.message+'\n\nMake sure server is running with a valid API key.');
+    renderHome();
+  }
+}
+
+// Tab key in editor
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('code-editor').addEventListener('keydown',function(e){
+    if(e.key==='Tab'){
+      e.preventDefault();
+      const s=this.selectionStart,end=this.selectionEnd;
+      this.value=this.value.substring(0,s)+'  '+this.value.substring(end);
+      this.selectionStart=this.selectionEnd=s+2;
+    }
+  });
+  // Ctrl/Cmd+Enter to run
+  document.getElementById('code-editor').addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();runTests();}
+  });
+  // Code guidance on input
+  document.getElementById('code-editor').addEventListener('input', guidanceDebounce);
+  // Restore guidance toggle state
+  const gOn = getConfig('guidance','off') === 'on';
+  document.getElementById('guidance-toggle').checked = gOn;
+  guidanceEnabled = gOn;
+});
+
+// ============================================================
+// CODE GUIDANCE — real-time static analysis
+// ============================================================
+let guidanceEnabled = false;
+let _guidanceTimer = null;
+
+function toggleGuidance(on) {
+  guidanceEnabled = on;
+  setConfig('guidance', on ? 'on' : 'off');
+  const panel = document.getElementById('guidance-panel');
+  const wrap = document.getElementById('editor-wrap');
+  if (!on) {
+    panel.innerHTML = '';
+    wrap.classList.remove('has-errors', 'has-warnings');
+    return;
+  }
+  runGuidance();
+}
+
+function guidanceDebounce() {
+  if (!guidanceEnabled) return;
+  clearTimeout(_guidanceTimer);
+  _guidanceTimer = setTimeout(runGuidance, 400);
+}
+
+function runGuidance() {
+  if (!guidanceEnabled || !currentCh) return;
+  const code = document.getElementById('code-editor').value;
+  const panel = document.getElementById('guidance-panel');
+  const wrap = document.getElementById('editor-wrap');
+  const lang = currentLang;
+  const sig = getSig(currentCh, lang);
+  const issues = analyzeCode(code, sig, lang, currentCh);
+
+  // Reset border classes
+  wrap.classList.remove('has-errors', 'has-warnings');
+
+  if (code.trim() === sig.trim() || code.trim().length < 5) {
+    panel.innerHTML = '';
+    return;
+  }
+
+  if (issues.length === 0) {
+    panel.innerHTML = '<div class="guidance-item g-ok"><span class="g-icon">✓</span><span class="g-msg">No issues. Run tests to verify.</span></div>';
+    return;
+  }
+
+  const errCount = issues.filter(i => i.level === 'error').length;
+  const warnCount = issues.filter(i => i.level === 'warn').length;
+  const infoCount = issues.filter(i => i.level === 'info').length;
+
+  if (errCount > 0) wrap.classList.add('has-errors');
+  else if (warnCount > 0) wrap.classList.add('has-warnings');
+
+  const parts = [];
+  if (errCount) parts.push(`<span class="g-count-err">${errCount} error${errCount>1?'s':''}</span>`);
+  if (warnCount) parts.push(`<span class="g-count-warn">${warnCount} warning${warnCount>1?'s':''}</span>`);
+  if (infoCount) parts.push(`<span class="g-count-info">${infoCount} hint${infoCount>1?'s':''}</span>`);
+  const summary = `<div class="g-summary">${parts.join(' · ')}</div>`;
+
+  panel.innerHTML = summary + issues.map(i =>
+    `<div class="guidance-item g-${i.level}"><span class="g-icon">${i.level==='error'?'✗':i.level==='warn'?'⚠':i.level==='info'?'→':'✓'}</span><span class="g-msg">${i.msg}</span></div>`
+  ).join('');
+}
+
+function analyzeCode(code, sig, lang, ch) {
+  const issues = [];
+  const trimmed = code.trim();
+  if (!trimmed || trimmed.length < 3) return issues;
+
+  // ---- UNIVERSAL CHECKS ----
+
+  // Bracket matching
+  const brackets = {'(':')','[':']','{':'}'};
+  const stack = [];
+  let inStr = false, strChar = '';
+  for (let i = 0; i < code.length; i++) {
+    const c = code[i];
+    if (inStr) { if (c === strChar && code[i-1] !== '\\') inStr = false; continue; }
+    if (c === '"' || c === "'" || c === '`') { inStr = true; strChar = c; continue; }
+    if (brackets[c]) stack.push({ ch: c, expect: brackets[c], pos: i });
+    else if (')]}]'.includes(c)) {
+      if (stack.length === 0) { issues.push({ level: 'error', msg: `Unmatched closing '${c}' at position ${i}` }); }
+      else {
+        const top = stack.pop();
+        if (top.expect !== c) issues.push({ level: 'error', msg: `Mismatched bracket: opened '${top.ch}' but closed with '${c}'` });
+      }
+    }
+  }
+  if (stack.length > 0) {
+    issues.push({ level: 'error', msg: `Unclosed bracket: '${stack[stack.length-1].ch}' — missing '${stack[stack.length-1].expect}'` });
+  }
+
+  // ---- JAVASCRIPT ----
+  if (lang === 'js') {
+    // Function name check
+    const sigName = sig.match(/function\s+(\w+)/)?.[1];
+    const codeName = code.match(/function\s+(\w+)/)?.[1];
+    if (sigName && codeName && sigName !== codeName) {
+      issues.push({ level: 'error', msg: `Function name is '${codeName}' but tests expect '${sigName}'. Rename it.` });
+    }
+    if (sigName && !code.includes(sigName)) {
+      issues.push({ level: 'error', msg: `Function '${sigName}' not found. Tests call this exact name.` });
+    }
+
+    // Param count
+    const sigParams = sig.match(/\(([^)]*)\)/)?.[1]?.split(',').filter(p=>p.trim()).length || 0;
+    const codeParams = code.match(/function\s+\w+\s*\(([^)]*)\)/)?.[1]?.split(',').filter(p=>p.trim()).length || 0;
+    if (sigParams > 0 && codeParams > 0 && sigParams !== codeParams) {
+      issues.push({ level: 'warn', msg: `Expected ${sigParams} parameter${sigParams>1?'s':''} but found ${codeParams}.` });
+    }
+
+    // Missing return
+    const hasBody = code.includes('{') && code.replace(/function[^{]*\{/, '').trim().length > 1;
+    const hasReturn = /return\s/.test(code);
+    const isVoid = ch.tests?.some(t => t.expect === undefined || t.expect === null);
+    if (hasBody && !hasReturn && !isVoid) {
+      issues.push({ level: 'warn', msg: 'No return statement found. Most challenges need to return a value.' });
+    }
+
+    // Empty body
+    if (code.match(/function\s+\w+\s*\([^)]*\)\s*\{\s*\}/)) {
+      issues.push({ level: 'info', msg: 'Function body is empty. Add your solution logic.' });
+    }
+
+    // Console.log as return
+    if (code.includes('console.log') && !hasReturn) {
+      issues.push({ level: 'warn', msg: 'console.log() prints but doesn\'t return. Tests check the return value.' });
+    }
+
+    // == vs ===
+    if (/[^!=]==(?!=)/.test(code) && !/===/.test(code)) {
+      issues.push({ level: 'info', msg: 'Using == instead of ===. Loose equality can cause unexpected type coercion.' });
+    }
+
+    // var instead of let/const
+    if (/\bvar\b/.test(code)) {
+      issues.push({ level: 'info', msg: 'Consider using let/const instead of var for block scoping.' });
+    }
+
+    // Infinite loop potential
+    if (/while\s*\(\s*true\s*\)/.test(code) && !/break/.test(code)) {
+      issues.push({ level: 'warn', msg: 'while(true) without a break statement may cause an infinite loop.' });
+    }
+
+    // for loop off-by-one hint
+    if (/for\s*\(.+<=.+\.length[^-]/.test(code)) {
+      issues.push({ level: 'warn', msg: 'Using <= with .length may cause an off-by-one error. Array indices go from 0 to length-1.' });
+    }
+
+    // Try to detect syntax errors
+    try {
+      new Function(code);
+    } catch (e) {
+      const msg = e.message.replace(/\n/g, ' ');
+      issues.push({ level: 'error', msg: `Syntax error: ${msg}` });
+    }
+  }
+
+  // ---- PYTHON ----
+  if (lang === 'py') {
+    const sigName = sig.match(/def\s+(\w+)/)?.[1];
+    const codeName = code.match(/def\s+(\w+)/)?.[1];
+    if (sigName && codeName && sigName !== codeName) {
+      issues.push({ level: 'error', msg: `Function name is '${codeName}' but tests expect '${sigName}'.` });
+    }
+    if (sigName && !code.includes('def ' + sigName)) {
+      issues.push({ level: 'error', msg: `Function '${sigName}' not defined. Tests call this exact name.` });
+    }
+
+    // Missing return
+    if (code.includes('def ') && !/return\s/.test(code) && !isVoidPy(ch)) {
+      issues.push({ level: 'warn', msg: 'No return statement found. Most challenges need to return a value.' });
+    }
+
+    // print instead of return
+    if (code.includes('print(') && !/return\s/.test(code)) {
+      issues.push({ level: 'warn', msg: 'print() outputs to console but doesn\'t return. Tests check the return value.' });
+    }
+
+    // Indentation check
+    const lines = code.split('\n');
+    const defLine = lines.findIndex(l => /^\s*def\s/.test(l));
+    if (defLine >= 0 && defLine < lines.length - 1) {
+      const nextNonEmpty = lines.slice(defLine + 1).find(l => l.trim().length > 0);
+      if (nextNonEmpty && !nextNonEmpty.startsWith(' ') && !nextNonEmpty.startsWith('\t')) {
+        issues.push({ level: 'error', msg: 'Code after def must be indented. Python uses indentation for blocks.' });
+      }
+    }
+
+    // Tabs vs spaces mixing
+    if (code.includes('\t') && /^ /.test(code)) {
+      issues.push({ level: 'warn', msg: 'Mixing tabs and spaces can cause IndentationError in Python.' });
+    }
+
+    // Empty function body
+    if (/def\s+\w+\s*\([^)]*\)\s*:\s*$/.test(code.trim())) {
+      issues.push({ level: 'info', msg: 'Function body is empty. Add your solution after the colon.' });
+    }
+  }
+
+  // ---- C++ ----
+  if (lang === 'cpp') {
+    const sigName = sig.match(/\b(\w+)\s*\(/)?.[1];
+    const codeName = code.match(/\b(\w+)\s*\([^)]*\)\s*\{/)?.[1];
+    if (sigName && codeName && sigName !== codeName && codeName !== 'main' && !['int','void','string','vector','bool','double','float','char'].includes(codeName)) {
+      issues.push({ level: 'error', msg: `Function name is '${codeName}' but tests expect '${sigName}'.` });
+    }
+
+    // Missing return
+    if (code.includes('{') && !/return\s/.test(code) && !/void\s/.test(sig)) {
+      issues.push({ level: 'warn', msg: 'No return statement found in a non-void function.' });
+    }
+
+    // Missing semicolons (heuristic)
+    const cppLines = code.split('\n').filter(l => l.trim().length > 0);
+    cppLines.forEach((line, i) => {
+      const t = line.trim();
+      if (t.endsWith('{') || t.endsWith('}') || t.startsWith('//') || t.startsWith('#') ||
+          t.startsWith('if') || t.startsWith('else') || t.startsWith('for') || t.startsWith('while') ||
+          t.endsWith(',') || t.endsWith('\\') || t.length < 3) return;
+      if (!t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') && !t.endsWith(':') &&
+          !t.startsWith('using') && !t.startsWith('namespace')) {
+        // Only flag if it looks like a statement
+        if (/[=+\-*/;]/.test(t) || /return\s/.test(t) || /\w+\s*\(/.test(t)) {
+          if (!t.endsWith(';')) {
+            issues.push({ level: 'warn', msg: `Line ${i+1} may be missing a semicolon: "${t.substring(0,40)}..."` });
+          }
+        }
+      }
+    });
+
+    // cout instead of return
+    if (code.includes('cout') && !/return\s/.test(code)) {
+      issues.push({ level: 'warn', msg: 'cout prints output but doesn\'t return. Tests check the return value.' });
+    }
+  }
+
+  return issues;
+}
+
+function isVoidPy(ch) {
+  return ch.tests?.some(t => t.expect === undefined || t.expect === null || t.expect === 'None');
+}
+
+// ============================================================
+// AI COMPANION — Server Backend (RAG + DeepSeek/Claude) with Direct API Fallback
+// ============================================================
+let aiMode = 'review';
+
+// --- Storage helpers ---
+function getConfig(key, fallback='') {
+  try { return localStorage.getItem('codegrind-'+key) || fallback; } catch(e) { return fallback; }
+}
+function setConfig(key, val) {
+  try { localStorage.setItem('codegrind-'+key, val); } catch(e) {}
+}
+function delConfig(key) {
+  try { localStorage.removeItem('codegrind-'+key); } catch(e) {}
+}
+
+function getBackendUrl() { return getConfig('backend-url'); }
+function getAPIKey() { return getConfig('api-key'); }
+function hasBackend() { return getBackendUrl().length > 5; }
+function hasAPIKey() { return getAPIKey().length > 10; }
+function hasAnyConfig() { return hasBackend() || hasAPIKey(); }
+
+// --- Settings modal ---
+function openSettings() {
+  document.getElementById('key-modal').classList.remove('hidden');
+  document.getElementById('backend-url-input').value = getBackendUrl();
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('api-key-input').placeholder = hasAPIKey() ? 'Key saved • enter new to replace' : 'sk-ant-api03-... or sk-...';
+  document.getElementById('modal-clear-btn').classList.toggle('hidden', !hasAnyConfig());
+  document.getElementById('backend-status').textContent = '';
+}
+function closeSettings() { document.getElementById('key-modal').classList.add('hidden'); }
+
+function saveSettings() {
+  const url = document.getElementById('backend-url-input').value.trim().replace(/\/+$/,'');
+  const key = document.getElementById('api-key-input').value.trim();
+  if (url) setConfig('backend-url', url); else delConfig('backend-url');
+  if (key) setConfig('api-key', key);
+  updateSettingsIcon();
+  closeSettings();
+}
+function clearSettings() {
+  if (!confirm('Remove all AI settings?')) return;
+  delConfig('backend-url');
+  delConfig('api-key');
+  updateSettingsIcon();
+  closeSettings();
+}
+
+async function testBackend() {
+  const url = document.getElementById('backend-url-input').value.trim().replace(/\/+$/,'');
+  const status = document.getElementById('backend-status');
+  if (!url) { status.innerHTML = '<span style="color:#ef4444">Enter a URL first</span>'; return; }
+  status.innerHTML = '<span style="color:#8b5cf6">Testing...</span>';
+  try {
+    const r = await fetch(url + '/codegrind/health', { signal: AbortSignal.timeout(5000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const ds = d.hasDeepSeek ? '<span style="color:#22c55e">✓ DeepSeek</span>' : '<span style="color:#888">✗ DeepSeek</span>';
+    const cl = d.hasAnthropic ? '<span style="color:#22c55e">✓ Claude</span>' : '<span style="color:#888">✗ Claude</span>';
+    status.innerHTML = `<span style="color:#22c55e">✓ Connected</span> · ${ds} · ${cl} · <span style="color:#8b5cf6">${d.knowledgeChunks} RAG chunks</span>`;
+  } catch(e) {
+    status.innerHTML = `<span style="color:#ef4444">✗ Failed: ${e.message}</span>`;
+  }
+}
+
+function updateSettingsIcon() {
+  const btn = document.getElementById('settings-btn');
+  const configured = hasBackend() || hasAPIKey();
+  btn.classList.toggle('configured', configured);
+  if (hasBackend()) btn.title = 'AI: Server (RAG + DeepSeek/Claude) ✓';
+  else if (hasAPIKey()) btn.title = 'AI: Direct API (no RAG) ✓';
+  else btn.title = 'Configure AI Companion';
+}
+
+// --- Mode switching ---
+function setAIMode(mode, btn) {
+  aiMode = mode;
+  document.querySelectorAll('.ai-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// --- Collect test results ---
+function getTestResultsText() {
+  const items = document.querySelectorAll('.test-case');
+  if (!items.length) return 'No tests run yet.';
+  let text = '';
+  items.forEach(item => {
+    const pass = item.classList.contains('test-pass');
+    const call = item.querySelector('.test-label-text code')?.textContent || '';
+    const expected = item.querySelector('.test-expected code')?.textContent || '';
+    const got = item.querySelector('.test-got code')?.textContent || '';
+    const err = item.querySelector('.test-error')?.textContent || '';
+    text += `${pass ? 'PASS' : 'FAIL'}: ${call} → expected ${expected}`;
+    if (got) text += `, got ${got}`;
+    if (err) text += ` (${err})`;
+    text += '\n';
+  });
+  return text;
+}
+
+// --- Main AI call ---
+async function askAI() {
+  if (!hasAnyConfig()) { openSettings(); return; }
+  if (!currentCh) return;
+
+  const aiBtn = document.getElementById('ai-btn');
+  const panel = document.getElementById('ai-panel');
+  const resp = document.getElementById('ai-response');
+
+  aiBtn.disabled = true;
+  aiBtn.classList.add('loading');
+  aiBtn.textContent = '⚡ THINKING...';
+  panel.classList.remove('hidden');
+  resp.textContent = hasBackend() ? 'Searching knowledge base + routing to AI...' : 'Analyzing your code...';
+
+  const userCode = document.getElementById('code-editor').value;
+  const testResults = getTestResultsText();
+
+  try {
+    let text;
+
+    if (hasBackend()) {
+      text = await callBackend(userCode, testResults);
+    } else {
+      text = await callDirectAPI(userCode, testResults);
+    }
+
+    resp.innerHTML = renderMarkdown(text);
+  } catch (e) {
+    resp.innerHTML = `<span style="color:#ef4444">Error: ${esc(e.message)}</span>`;
+    if (hasBackend() && hasAPIKey()) {
+      resp.innerHTML += `<br><br><span style="color:#555;font-size:0.75rem">Server unreachable. <a href="#" onclick="forceDirectMode();return false" style="color:#8b5cf6">Try direct API →</a></span>`;
+    }
+  } finally {
+    aiBtn.disabled = false;
+    aiBtn.classList.remove('loading');
+    aiBtn.textContent = '⚡ ASK AI';
+  }
+}
+
+// --- Server backend call (RAG + DeepSeek/Claude) ---
+async function callBackend(userCode, testResults) {
+  const response = await fetch(getBackendUrl() + '/codegrind/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(30000),
+    body: JSON.stringify({
+      challengeTitle: currentCh.title,
+      challengeCategory: currentCh.cat,
+      challengePrompt: currentCh.prompt,
+      challengeSignature: getSig(currentCh, currentLang),
+      language: LANG_NAMES[currentLang],
+      userCode,
+      testResults,
+      mode: aiMode
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `Server error (${response.status})`);
+  }
+
+  const data = await response.json();
+  // Build status line: provider + RAG indicator
+  const providerTag = data.provider === 'deepseek' ? '🟢 DeepSeek' : data.provider === 'claude' ? '🟣 Claude' : data.provider || 'AI';
+  const ragTag = data.ragSources ? ' · 🔍 RAG' : '';
+  const statusLine = `<div style="font-size:0.6rem;color:#555;letter-spacing:0.5px;margin-bottom:8px;font-family:monospace">${providerTag}${ragTag}</div>`;
+  return statusLine + data.response;
+}
+
+// --- Direct API fallback (no RAG, browser-side) ---
+async function callDirectAPI(userCode, testResults) {
+  const key = getAPIKey();
+  const modePrompts = {
+    review: 'Review this code for a coding challenge. Point out bugs, logic errors, edge cases missed, and suggest fixes. Be specific about line-level issues. If the code is correct, say so and suggest minor improvements.',
+    explain: 'Explain the logic of this code step by step as if teaching someone who understands basic programming but is learning algorithms. Walk through what happens with a concrete example. Explain WHY each step works, not just what it does.',
+    optimize: 'Analyze the time and space complexity of this solution. Suggest optimizations if possible. Compare to the optimal approach. If already optimal, explain why. Mention any real-world performance considerations relevant to audio/signal processing if applicable.',
+    interview: 'Act as a technical interviewer at a top tech company. Evaluate this code as if it was written during a coding interview. Consider: correctness, code style, edge case handling, time/space complexity awareness. Give specific feedback on what would impress and what would concern an interviewer. Suggest follow-up questions they might ask.'
+  };
+
+  const systemPrompt = 'You are an AI coding tutor embedded in a coding challenge app for someone preparing for technical interviews. They have a background in audio engineering and are self-taught in programming. Be direct, technical, and encouraging. Keep responses focused and under 300 words. Use code blocks when showing code. Don\'t repeat the challenge prompt back to them.';
+
+  const langName = LANG_NAMES[currentLang];
+  const langExt = {js:'javascript',py:'python',cpp:'cpp',sql:'sql'}[currentLang];
+
+  const userMessage = `Challenge: "${currentCh.title}" (${currentCh.cat})
+Problem: ${currentCh.prompt}
+Language: ${langName}
+Function signature: ${getSig(currentCh, currentLang)}
+
+Their code:
+\`\`\`${langExt}
+${userCode}
+\`\`\`
+
+Test results:
+${testResults}
+
+Mode: ${modePrompts[aiMode]}`;
+
+  // Detect provider from key prefix
+  const isDeepSeek = key.startsWith('sk-') && !key.startsWith('sk-ant');
+  const endpoint = isDeepSeek ? 'https://api.deepseek.com/chat/completions' : 'https://api.anthropic.com/v1/messages';
+
+  if (isDeepSeek) {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        max_tokens: 1024,
+        temperature: 0.3,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ]
+      })
+    });
+    if (!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `DeepSeek error (${response.status})`); }
+    const data = await response.json();
+    const tag = '<div style="font-size:0.6rem;color:#555;letter-spacing:0.5px;margin-bottom:8px;font-family:monospace">🟢 DeepSeek · no RAG</div>';
+    return tag + (data.choices[0]?.message?.content || '');
+  } else {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(()=>({}));
+      if (response.status === 401) throw new Error('Invalid API key. Click ⚙ to update.');
+      throw new Error(err.error?.message || `Claude error (${response.status})`);
+    }
+    const data = await response.json();
+    const tag = '<div style="font-size:0.6rem;color:#555;letter-spacing:0.5px;margin-bottom:8px;font-family:monospace">🟣 Claude · no RAG</div>';
+    return tag + data.content.map(b => b.text || '').join('\n');
+  }
+}
+
+function forceDirectMode() {
+  const savedUrl = getBackendUrl();
+  delConfig('backend-url');
+  askAI().finally(() => setConfig('backend-url', savedUrl));
+}
+
+function renderMarkdown(text) {
+  // Don't escape provider tag divs
+  const parts = text.split(/(<div[^>]*>.*?<\/div>)/);
+  return parts.map(part => {
+    if (part.startsWith('<div')) return part;
+    part = part.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) =>
+      `<pre>${esc(code.trim())}</pre>`);
+    part = part.replace(/`([^`]+)`/g, '<code>$1</code>');
+    part = part.replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#e0e0e0">$1</strong>');
+    part = part.replace(/\n/g, '<br>');
+    return part;
+  }).join('');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+load();loadCustomChallenges();loadLcSlots();renderHome();updateSettingsIcon();
+
+// Auto-detect backend when served from same origin
+(async function autoDetectBackend() {
+  if (window.location.protocol === 'file:') return;
+  if (getBackendUrl()) return; // Already configured
+  try {
+    const r = await fetch(window.location.origin + '/codegrind/ask', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      signal: AbortSignal.timeout(2000),
+      body: JSON.stringify({title:'ping',code:'',mode:'explain',language:'JavaScript'})
+    });
+    if (r.ok || r.status === 400) {
+      // Server is reachable
+      setConfig('backend-url', window.location.origin);
+      updateSettingsIcon();
+      console.log('[CG] Auto-detected backend at', window.location.origin);
+    }
+  } catch(e) { /* not available */ }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "title": "Audio DSP and ML Concepts Reference",
+  "sections": [
+    {
+      "title": "Nyquist Theorem and Sampling",
+      "content": "Sample at >=2x highest frequency. Audio at 20kHz needs minimum 40kHz. CD standard: 44.1kHz/16-bit/stereo = 1411 kbps. Speech ML standard: 16kHz/16-bit/mono. Aliasing occurs when sample rate is too low — high frequencies fold back as phantom lows. Anti-aliasing filter removes content above Nyquist before sampling. Quantization: 16-bit = 65536 levels = ~96dB dynamic range. 24-bit = ~144dB. Formula: ~6.02 * bits dB."
+    },
+    {
+      "title": "FFT and Spectrograms",
+      "content": "FFT converts time-domain to frequency-domain. O(N log N) vs DFT O(N^2). Requires power-of-2 samples. Returns magnitude and phase per frequency bin. Frequency resolution = sample_rate / FFT_size. Spectrograms: STFT — windowed FFT across overlapping frames. Tradeoff: longer window = better frequency resolution, worse time resolution. Windowing (Hanning, Hamming, Blackman) reduces spectral leakage. Each window trades main lobe width vs side lobe attenuation."
+    },
+    {
+      "title": "MFCCs (Mel-Frequency Cepstral Coefficients)",
+      "content": "Standard audio feature for ML. Process: audio -> frames -> FFT -> power spectrum -> mel filterbank -> log -> DCT -> MFCCs. Mel scale maps frequency to human perception (logarithmic above ~1kHz). Formula: m = 2595 * log10(1 + f/700). Typical: 13 coefficients per frame, 25ms window, 10ms hop. MFCCs compress spectral information into ~13 values per frame. Used in speech recognition, speaker identification, audio classification."
+    },
+    {
+      "title": "Digital Filters: FIR vs IIR",
+      "content": "FIR (Finite Impulse Response): Always stable. Linear phase. Higher computation. Output depends only on input. Used when phase accuracy matters (audio production, hearing aids). IIR (Infinite Impulse Response): Can be unstable. Non-linear phase. Lower computation. Output depends on input AND previous outputs (feedback). Used when efficiency matters. Z-Transform: poles inside unit circle = stable. Low-pass, high-pass, band-pass, notch filters. Cutoff frequency and roll-off relate to filter order."
+    },
+    {
+      "title": "Real-Time Audio Constraints",
+      "content": "Buffer latency = buffer_size / sample_rate. 256 samples at 48kHz = 5.33ms. Processing must complete within one buffer period or glitches occur. C/C++ preferred over Python for production audio. Circular buffers essential for real-time streaming. Double buffering: process one buffer while filling another. Priority: deterministic timing over throughput."
+    },
+    {
+      "title": "Audio ML Architectures",
+      "content": "CNNs on spectrograms: treat audio as image. Conv2D extracts local time-frequency patterns. Simple, effective baseline. RNNs/LSTMs: sequential processing, good for temporal patterns. Being replaced by transformers. Transformers/Attention: Wav2Vec 2.0, Whisper, HuBERT. Self-attention captures long-range dependencies. Q, K, V, scaled dot-product attention. U-Net/Encoder-Decoder: source separation, denoising. Skip connections preserve detail."
+    },
+    {
+      "title": "Audio Evaluation Metrics",
+      "content": "PESQ (Perceptual Evaluation of Speech Quality): ITU standard for speech quality. Score 1-5. STOI (Short-Time Objective Intelligibility): measures speech intelligibility. 0-1. SI-SNR (Scale-Invariant Signal-to-Noise Ratio): improvement in SNR after processing. Standard for speech enhancement. For classification: accuracy, precision, recall, F1, AUC-ROC."
+    },
+    {
+      "title": "Echo Cancellation",
+      "content": "Uses adaptive filtering (LMS or NLMS algorithm) to estimate and subtract echo path. Filter continuously adapts to changing acoustic environments. Key in telecom and smart speakers. LMS update: w[n+1] = w[n] + mu * e[n] * x[n], where mu = step size, e = error signal, x = reference signal."
+    },
+    {
+      "title": "Spatial Audio and Codecs",
+      "content": "HRTF (Head-Related Transfer Function): models how sound reaches each ear from different directions. Binaural rendering creates 3D audio in headphones. Critical for AR/VR headsets and smart glasses. Codecs: Opus dominant for real-time (6-510 kbps, 2.5ms frame). AAC for streaming. FLAC for lossless. Tradeoffs: bitrate vs quality vs latency vs compute."
+    },
+    {
+      "title": "Key Formulas Quick Reference",
+      "content": "Nyquist: f_s >= 2 * f_max. FFT complexity: O(N log N). Buffer latency: buffer_size / sample_rate. Frequency resolution: f_s / N. Bit depth DR: ~6.02 * bits dB. Mel scale: m = 2595 * log10(1 + f/700). Decibels: dB = 20*log10(amplitude_ratio) or 10*log10(power_ratio). Cross-entropy: L = -sum(y_i * log(p_i)). MSE: L = (1/n) * sum((y-y_hat)^2). Gradient descent: theta = theta - alpha * grad(L). Human hearing: 20Hz-20kHz, ~120dB range. Pi 5 constraints: 8GB RAM, ARM Cortex-A76, no GPU."
+    }
+  ]
+}

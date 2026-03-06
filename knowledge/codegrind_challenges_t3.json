@@ -1,0 +1,188 @@
+[
+  {
+    "title": "BST Insert", "id": 13, "tier": 3, "category": "Binary Trees",
+    "problem": "Insert value into BST. Left < node, right > node. Return root.",
+    "solution": "function insertBST(root, val) {\n  if(!root) return new TreeNode(val);\n  if(val<root.val) root.left=insertBST(root.left,val);\n  else root.right=insertBST(root.right,val);\n  return root;\n}",
+    "concept": "Recursive insertion follows BST property: smaller goes left, larger goes right. Null position = where to insert. Returns root so parent's pointer updates correctly. O(h) time where h = tree height.",
+    "complexity": "O(h) time, O(h) space (recursion stack)",
+    "pattern": "Recursive BST navigation"
+  },
+  {
+    "title": "Level-Order (BFS)", "id": 14, "tier": 3, "category": "Binary Trees",
+    "problem": "Return values level by level as array of arrays.",
+    "solution": "function levelOrder(root) {\n  if(!root) return [];\n  const res=[], q=[root];\n  while(q.length){const lv=[], sz=q.length;\n    for(let i=0;i<sz;i++){const n=q.shift();lv.push(n.val);if(n.left)q.push(n.left);if(n.right)q.push(n.right);}\n    res.push(lv);\n  } return res;\n}",
+    "concept": "BFS using a queue. Key insight: capture queue length at start of each level, process exactly that many nodes. This gives level-by-level grouping. BFS = queue, DFS = stack/recursion.",
+    "complexity": "O(n) time, O(w) space where w = max level width",
+    "pattern": "BFS level processing"
+  },
+  {
+    "title": "Climbing Stairs", "id": 15, "tier": 3, "category": "Dynamic Programming",
+    "problem": "1 or 2 stairs per step. How many ways to climb n?",
+    "solution": "function climbStairs(n) {\n  if(n<=2) return n;\n  let a=1, b=2;\n  for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;}\n  return b;\n}",
+    "concept": "This IS Fibonacci. ways(n) = ways(n-1) + ways(n-2) because from step n you could have come from n-1 or n-2. DP optimization: only need previous two values, so O(1) space instead of O(n) array.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Bottom-up DP with space optimization"
+  },
+  {
+    "title": "Moving Average Filter", "id": 16, "tier": 3, "category": "Audio DSP",
+    "problem": "Smooth signal with window k. Return averaged values.",
+    "solution": "function movingAverage(samples, k) {\n  const r=[]; let s=0;\n  for(let i=0;i<k;i++) s+=samples[i];\n  r.push(s/k);\n  for(let i=k;i<samples.length;i++){s+=samples[i]-samples[i-k];r.push(s/k);}\n  return r;\n}",
+    "concept": "Sliding window applied to audio. Same O(n) technique as Max Subarray Sum K but averaging instead of maximizing. In audio: smooths high-frequency noise. Used in envelope followers, level meters, and AGC (automatic gain control). The window size determines smoothing aggressiveness — larger windows = more smoothing but more latency.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Fixed sliding window",
+    "audio_connection": "Core DSP operation. Used in envelope followers, level meters, AGC. Window size controls smoothing vs latency tradeoff."
+  },
+  {
+    "title": "Zero-Crossing Rate", "id": 17, "tier": 3, "category": "Audio DSP",
+    "problem": "Rate signal changes sign. Return crossings / total samples.",
+    "solution": "function zeroCrossingRate(samples) {\n  let c=0;\n  for(let i=1;i<samples.length;i++)\n    if((samples[i]>=0&&samples[i-1]<0)||(samples[i]<0&&samples[i-1]>=0)) c++;\n  return c/samples.length;\n}",
+    "concept": "Voice activity detection (VAD) feature. Speech has lower ZCR than noise. High ZCR indicates unvoiced fricatives or noise. Used as a simple feature in audio ML — often combined with energy for basic VAD. Low cost O(n) computation makes it ideal for real-time.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Consecutive pair comparison",
+    "audio_connection": "VAD feature. Speech ~50-200 crossings/sec. White noise ~high. Used in MFCC pipelines and as ML input feature."
+  },
+  {
+    "title": "Frame Energy", "id": 18, "tier": 3, "category": "Audio DSP",
+    "problem": "Energy per frame = sum of squared samples per frame.",
+    "solution": "function frameEnergy(samples, frameSize) {\n  const r=[];\n  for(let i=0;i+frameSize<=samples.length;i+=frameSize){\n    let e=0; for(let j=i;j<i+frameSize;j++) e+=samples[j]*samples[j];\n    r.push(e);\n  } return r;\n}",
+    "concept": "Energy = sum of squared amplitudes per frame. Non-overlapping frames. Used for: VAD (silent frames have low energy), onset detection (energy spike = new sound), and as ML feature. Squaring amplifies loud parts and diminishes quiet parts.",
+    "complexity": "O(n) time, O(n/frameSize) space",
+    "pattern": "Block processing",
+    "audio_connection": "Fundamental audio feature. Used in VAD, onset detection, MFCC pipelines. Frame-based processing is how ALL audio ML works."
+  },
+  {
+    "title": "Invert Binary Tree", "id": 33, "tier": 3, "category": "Binary Trees",
+    "problem": "Mirror tree — swap all left/right children.",
+    "solution": "function invertTree(root) {\n  if(!root) return null;\n  const t=root.left; root.left=root.right; root.right=t;\n  invertTree(root.left); invertTree(root.right);\n  return root;\n}",
+    "concept": "Recursive swap at every node. Famous interview question (the 'homebrew guy' tweet). Three lines: swap left and right, recurse both. Order doesn't matter since we swap before recursing.",
+    "complexity": "O(n) time, O(h) space",
+    "pattern": "Recursive tree transformation"
+  },
+  {
+    "title": "Validate BST", "id": 34, "tier": 3, "category": "Binary Trees",
+    "problem": "Is binary tree a valid BST? Left descendants <, right >.",
+    "solution": "function isValidBST(root) {\n  function check(n,min,max){\n    if(!n)return true;\n    if(n.val<=min||n.val>=max)return false;\n    return check(n.left,min,n.val)&&check(n.right,n.val,max);\n  }\n  return check(root,-Infinity,Infinity);\n}",
+    "concept": "Pass valid range through recursion. Common mistake: only checking immediate children, not all descendants. Range narrows as you go deeper: left child must be in (parent_min, parent_val), right in (parent_val, parent_max).",
+    "complexity": "O(n) time, O(h) space",
+    "pattern": "Range-constrained recursion"
+  },
+  {
+    "title": "Coin Change", "id": 35, "tier": 3, "category": "Dynamic Programming",
+    "problem": "Fewest coins to make amount. -1 if impossible.",
+    "solution": "function coinChange(coins, amount) {\n  const dp=new Array(amount+1).fill(Infinity); dp[0]=0;\n  for(let i=1;i<=amount;i++)\n    for(const c of coins) if(c<=i&&dp[i-c]+1<dp[i]) dp[i]=dp[i-c]+1;\n  return dp[amount]===Infinity?-1:dp[amount];\n}",
+    "concept": "Classic unbounded knapsack DP. dp[i] = min coins for amount i. For each amount, try every coin denomination: dp[i] = min(dp[i], dp[i-coin]+1). Bottom-up avoids recursion overhead. Infinity as default handles impossible amounts.",
+    "complexity": "O(amount * coins) time, O(amount) space",
+    "pattern": "Bottom-up DP with optimization choices"
+  },
+  {
+    "title": "Graph BFS Distance", "id": 36, "tier": 3, "category": "Graphs",
+    "problem": "Shortest distances from start node in adjacency list graph.",
+    "solution": "function bfsDistance(graph, start) {\n  const d={[start]:0}, q=[start];\n  while(q.length){const n=q.shift();for(const nb of(graph[n]||[])){if(d[nb]===undefined){d[nb]=d[n]+1;q.push(nb);}}}\n  return d;\n}",
+    "concept": "BFS guarantees shortest path in unweighted graphs. Distance = parent distance + 1. Only visit each node once (check if already in distance map). Queue ensures we process closest nodes first.",
+    "complexity": "O(V + E) time and space",
+    "pattern": "BFS shortest path"
+  },
+  {
+    "title": "Min Stack", "id": 37, "tier": 3, "category": "Stacks",
+    "problem": "Stack with O(1) push, pop, top, getMin.",
+    "solution": "class MinStack {\n  constructor(){this.s=[];this.m=[];}\n  push(v){this.s.push(v);if(!this.m.length||v<=this.m[this.m.length-1])this.m.push(v);}\n  pop(){const v=this.s.pop();if(v===this.m[this.m.length-1])this.m.pop();}\n  top(){return this.s[this.s.length-1];}\n  getMin(){return this.m[this.m.length-1];}\n}",
+    "concept": "Auxiliary stack tracks current minimum. Push to min stack when new value <= current min. Pop from min stack when popped value equals current min. O(1) for all operations by trading space for time.",
+    "complexity": "O(1) all operations, O(n) space",
+    "pattern": "Auxiliary data structure"
+  },
+  {
+    "title": "Circular Buffer", "id": 38, "tier": 3, "category": "Audio DSP",
+    "problem": "Fixed-size ring buffer. write(sample) and read().",
+    "solution": "class CircBuf {\n  constructor(sz){this.b=new Array(sz).fill(0);this.sz=sz;this.w=0;this.r=0;this.c=0;}\n  write(s){this.b[this.w]=s;this.w=(this.w+1)%this.sz;if(this.c<this.sz)this.c++;else this.r=(this.r+1)%this.sz;}\n  read(){if(!this.c)return null;const v=this.b[this.r];this.r=(this.r+1)%this.sz;this.c--;return v;}\n}",
+    "concept": "Ring buffer is THE fundamental audio data structure. Fixed memory allocation, modulo-based wrapping. Used in every real-time audio system: DAWs, effects processors, communication codecs. Write pointer wraps around; when full, oldest data is overwritten (or blocked). The modulo operation is the key: (pointer + 1) % size.",
+    "complexity": "O(1) read/write",
+    "pattern": "Modulo ring buffer",
+    "audio_connection": "Core audio infrastructure. Every DAW, codec, and real-time audio system uses ring buffers. Buffer size directly determines latency."
+  },
+  {
+    "title": "Peak Detector", "id": 39, "tier": 3, "category": "Audio DSP",
+    "problem": "Find peaks: value > threshold AND > both neighbors. Return indices.",
+    "solution": "function detectPeaks(samples, threshold) {\n  const p=[];\n  for(let i=1;i<samples.length-1;i++)\n    if(samples[i]>threshold&&samples[i]>samples[i-1]&&samples[i]>samples[i+1]) p.push(i);\n  return p;\n}",
+    "concept": "Onset detection building block. A peak is a local maximum above a threshold. Used for: beat detection, transient detection, pitch estimation. Threshold prevents noise from triggering false peaks. Skip first and last samples since they can't have both neighbors.",
+    "complexity": "O(n) time, O(k) space where k = number of peaks",
+    "pattern": "Neighbor comparison with threshold",
+    "audio_connection": "Beat detection, onset detection, pitch tracking. Combined with energy and ZCR for robust onset detection."
+  },
+  {
+    "title": "Convolution (FIR)", "id": 40, "tier": 3, "category": "Audio DSP",
+    "problem": "Convolve signal with kernel. Output length = sig + kern - 1.",
+    "solution": "function convolve(signal, kernel) {\n  const o=new Array(signal.length+kernel.length-1).fill(0);\n  for(let i=0;i<signal.length;i++) for(let j=0;j<kernel.length;j++) o[i+j]+=signal[i]*kernel[j];\n  return o;\n}",
+    "concept": "Convolution IS FIR filtering. Signal * kernel = output. Each output sample is the weighted sum of signal samples using kernel weights. This is how reverb, EQ, and FIR filters work mathematically. Output length = input + kernel - 1. In frequency domain: convolution = multiplication (FFT makes this O(n log n) for large kernels).",
+    "complexity": "O(n*m) time where m = kernel length, O(n+m) space",
+    "pattern": "Nested accumulation",
+    "audio_connection": "FIR filtering, reverb (impulse response convolution), EQ. FFT-based convolution is O(n log n) for large kernels."
+  },
+  {
+    "title": "Longest Common Subsequence", "id": 57, "tier": 3, "category": "Dynamic Programming",
+    "problem": "Length of longest common subsequence of two strings.",
+    "solution": "function lcs(s1, s2) {\n  const m=s1.length,n=s2.length;\n  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));\n  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)\n    dp[i][j]=s1[i-1]===s2[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);\n  return dp[m][n];\n}",
+    "concept": "2D DP. Two cases: characters match (diagonal + 1) or don't (max of skip-from-either). The table fills left-to-right, top-to-bottom. Foundation for diff algorithms, DNA sequence alignment, and version control.",
+    "complexity": "O(m*n) time, O(m*n) space",
+    "pattern": "2D DP table"
+  },
+  {
+    "title": "Number of Islands", "id": 58, "tier": 3, "category": "Graphs",
+    "problem": "Count islands in grid of '1' (land) and '0' (water).",
+    "solution": "function numIslands(grid) {\n  let c=0;\n  function dfs(i,j){\n    if(i<0||i>=grid.length||j<0||j>=grid[0].length||grid[i][j]==='0')return;\n    grid[i][j]='0'; dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);\n  }\n  for(let i=0;i<grid.length;i++) for(let j=0;j<grid[0].length;j++)\n    if(grid[i][j]==='1'){c++;dfs(i,j);}\n  return c;\n}",
+    "concept": "DFS flood-fill: when you find land, increment count and flood-fill-mark the entire connected island as visited. Grid traversal + DFS = graph search on implicit graph. Top interview question.",
+    "complexity": "O(m*n) time and space",
+    "pattern": "DFS flood-fill on grid"
+  },
+  {
+    "title": "Lowest Common Ancestor", "id": 59, "tier": 3, "category": "Binary Trees",
+    "problem": "LCA of two values in a BST.",
+    "solution": "function lca(root, p, q) {\n  while(root){\n    if(p<root.val&&q<root.val) root=root.left;\n    else if(p>root.val&&q>root.val) root=root.right;\n    else return root;\n  }\n}",
+    "concept": "BST property makes this O(h): if both values less than root, go left. Both greater, go right. Otherwise they split — current node IS the LCA. Iterative, no recursion needed.",
+    "complexity": "O(h) time, O(1) space",
+    "pattern": "BST-guided search"
+  },
+  {
+    "title": "Topological Sort", "id": 60, "tier": 3, "category": "Graphs",
+    "problem": "Valid topological ordering of DAG (directed acyclic graph).",
+    "solution": "function topoSort(n, edges) {\n  const adj=Array.from({length:n},()=>[]),deg=new Array(n).fill(0);\n  for(const[f,t]of edges){adj[f].push(t);deg[t]++;}\n  const q=[]; for(let i=0;i<n;i++) if(!deg[i])q.push(i);\n  const r=[]; while(q.length){const nd=q.shift();r.push(nd);for(const nb of adj[nd]){deg[nb]--;if(!deg[nb])q.push(nb);}}\n  return r;\n}",
+    "concept": "Kahn's algorithm: process nodes with 0 in-degree first. As you remove a node, decrement neighbors' in-degrees. Newly zero nodes join the queue. Used for: build systems, task scheduling, course prerequisites.",
+    "complexity": "O(V + E) time and space",
+    "pattern": "In-degree BFS (Kahn's)"
+  },
+  {
+    "title": "RMS Level", "id": 61, "tier": 3, "category": "Audio DSP",
+    "problem": "RMS per frame = sqrt(mean of squared samples).",
+    "solution": "function rmsLevel(samples, frameSize) {\n  const r=[];\n  for(let i=0;i+frameSize<=samples.length;i+=frameSize){\n    let s=0; for(let j=i;j<i+frameSize;j++) s+=samples[j]*samples[j];\n    r.push(Math.sqrt(s/frameSize));\n  } return r;\n}",
+    "concept": "RMS (Root Mean Square) is the standard audio level measurement. Unlike peak level, RMS reflects perceived loudness. sqrt(mean(samples²)). Used in level meters, loudness standards (EBU R128), and normalization. dBFS = 20*log10(RMS).",
+    "complexity": "O(n) time, O(frames) space",
+    "pattern": "Block statistical computation",
+    "audio_connection": "Standard loudness measurement. VU meters, EBU R128 loudness. RMS correlates with perceived loudness better than peak."
+  },
+  {
+    "title": "Noise Gate", "id": 62, "tier": 3, "category": "Audio DSP",
+    "problem": "If frame RMS < threshold, silence it. Return modified samples.",
+    "solution": "function noiseGate(samples, frameSize, threshold) {\n  const o=[...samples];\n  for(let i=0;i+frameSize<=o.length;i+=frameSize){\n    let s=0; for(let j=i;j<i+frameSize;j++) s+=o[j]*o[j];\n    if(Math.sqrt(s/frameSize)<threshold) for(let j=i;j<i+frameSize;j++) o[j]=0;\n  } return o;\n}\n",
+    "concept": "Noise gate: silence below threshold, pass above. Real-world gates have attack, hold, and release times. This simplified version demonstrates the core logic: measure level per frame, zero out if below threshold. Used in podcasts, live sound, and noise reduction.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Conditional block silencing",
+    "audio_connection": "Used in every mixing console and DAW. Podcast noise reduction, live sound, drum isolation."
+  },
+  {
+    "title": "Decibel Conversion", "id": 63, "tier": 3, "category": "Audio DSP",
+    "problem": "ampToDb(amp) = 20*log10(amp). dbToAmp(db) = 10^(db/20). Handle amp=0.",
+    "solution": "function ampToDb(amp) {\n  if(amp===0) return -Infinity;\n  return 20*Math.log10(Math.abs(amp));\n}\nfunction dbToAmp(db) {\n  return Math.pow(10, db/20);\n}",
+    "concept": "Decibels are logarithmic ratio: 20*log10 for amplitude, 10*log10 for power. +6dB ≈ double amplitude. +3dB ≈ double power. amp=0 → -∞ dB (digital silence). This is the scale every level meter, fader, and loudness specification uses.",
+    "complexity": "O(1) time and space",
+    "pattern": "Mathematical conversion",
+    "audio_connection": "Fundamental audio math. Every fader, meter, compressor, and limiter operates in dB. Know 0dBFS=max, -6dB=half amplitude, -96dB=16-bit noise floor."
+  },
+  {
+    "title": "Downsample Audio", "id": 64, "tier": 3, "category": "Audio DSP",
+    "problem": "Downsample by factor N: moving average filter (anti-alias), then keep every Nth.",
+    "solution": "function downsample(samples, factor) {\n  const r=[]; let s=0;\n  for(let i=0;i<factor&&i<samples.length;i++) s+=samples[i];\n  r.push(s/factor);\n  for(let i=factor;i<samples.length;i++){s+=samples[i]-samples[i-factor];r.push(s/factor);}\n  const d=[]; for(let i=0;i<r.length;i+=factor) d.push(r[i]);\n  return d;\n}",
+    "concept": "Sample rate conversion requires anti-alias filtering BEFORE decimation (Nyquist). Without filtering, frequencies above new_rate/2 fold back as aliasing artifacts. Moving average is simplest low-pass filter. Real systems use higher-order filters. This is why you can't just 'skip samples' — you must filter first.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Filter then decimate",
+    "audio_connection": "Sample rate conversion. 44.1kHz→16kHz for speech ML models. Anti-aliasing is mandatory per Nyquist theorem."
+  }
+]

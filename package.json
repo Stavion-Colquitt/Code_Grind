@@ -1,0 +1,14 @@
+{
+  "name": "codegrind",
+  "version": "1.0.0",
+  "description": "Code Grind — 64 coding challenges with RAG-grounded AI companion",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "health": "curl -s http://localhost:3100/codegrind/health"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

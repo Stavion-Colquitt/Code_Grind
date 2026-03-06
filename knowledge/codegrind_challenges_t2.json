@@ -1,0 +1,223 @@
+[
+  {
+    "title": "Two Sum Optimized (Hash Map)",
+    "id": 7, "tier": 2, "category": "Hash Maps",
+    "problem": "Two Sum in O(n) using a hash map. Return [i, j].",
+    "signature": "function twoSumFast(nums, target) { }",
+    "solution": "function twoSumFast(nums, target) {\n  const map = {};\n  for (let i = 0; i < nums.length; i++) {\n    const c = target - nums[i];\n    if (map[c] !== undefined) return [map[c], i];\n    map[nums[i]] = i;\n  }\n}",
+    "concept": "Hash map trades O(n) space for O(1) lookup. For each number, check if its complement was already seen. This is THE optimization pattern in algorithm design — precompute + lookup vs brute force search.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Hash map complement lookup"
+  },
+  {
+    "title": "Max Subarray Sum K (Sliding Window)",
+    "id": 8, "tier": 2, "category": "Sliding Window",
+    "problem": "Maximum sum of any contiguous subarray of size k.",
+    "signature": "function maxSubarraySum(arr, k) { }",
+    "solution": "function maxSubarraySum(arr, k) {\n  let ws = 0;\n  for (let i = 0; i < k; i++) ws += arr[i];\n  let mx = ws;\n  for (let i = k; i < arr.length; i++) { ws += arr[i]-arr[i-k]; mx = Math.max(mx,ws); }\n  return mx;\n}",
+    "concept": "Fixed sliding window: compute first window, then slide by subtracting the leaving element and adding the entering element. Like a moving average filter on audio — you don't recompute the entire sum each time.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Fixed sliding window",
+    "audio_connection": "Moving average on audio buffers uses the same sliding window approach"
+  },
+  {
+    "title": "Binary Tree Node + Build",
+    "id": 9, "tier": 2, "category": "Binary Trees",
+    "problem": "Create TreeNode class and build tree: root=1, left=2, right=3, left.left=4, left.right=5.",
+    "signature": "class TreeNode { }\nfunction buildTree() { }",
+    "solution": "class TreeNode {\n  constructor(val) { this.val=val; this.left=null; this.right=null; }\n}\nfunction buildTree() {\n  const r = new TreeNode(1);\n  r.left = new TreeNode(2); r.right = new TreeNode(3);\n  r.left.left = new TreeNode(4); r.left.right = new TreeNode(5);\n  return r;\n}",
+    "concept": "Binary tree = nodes pointing to other nodes. Foundation for BSTs, heaps, tries, and expression trees. Each node has val, left child, right child. This is the data structure underlying many efficient algorithms.",
+    "complexity": "O(n) to build where n = number of nodes",
+    "pattern": "Tree construction"
+  },
+  {
+    "title": "Max Depth of Binary Tree",
+    "id": 10, "tier": 2, "category": "Binary Trees",
+    "problem": "Maximum depth of a binary tree. Empty=0, single node=1.",
+    "signature": "function maxDepth(root) { }",
+    "solution": "function maxDepth(root) {\n  if (!root) return 0;\n  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}",
+    "concept": "Tree recursion: decompose into subtrees. Base case: null → 0. Recursive case: 1 + max of children. This two-line solution encapsulates the power of recursion — the call stack tracks all the work.",
+    "complexity": "O(n) time, O(h) space where h = height (recursion stack)",
+    "pattern": "Tree recursion"
+  },
+  {
+    "title": "In-Order Traversal",
+    "id": 11, "tier": 2, "category": "Binary Trees",
+    "problem": "Return values from in-order traversal (left, root, right).",
+    "signature": "function inOrder(root) { }",
+    "solution": "function inOrder(root) {\n  const r = [];\n  function go(n) { if(!n)return; go(n.left); r.push(n.val); go(n.right); }\n  go(root); return r;\n}",
+    "concept": "In-order visits BST nodes in sorted order: left subtree, current node, right subtree. Pre-order (root,left,right) for copying. Post-order (left,right,root) for deletion. These three traversals plus BFS cover every tree problem.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "DFS tree traversal"
+  },
+  {
+    "title": "Valid Palindrome",
+    "id": 12, "tier": 2, "category": "Two Pointers",
+    "problem": "Is string a palindrome? Ignore non-alphanumeric, case insensitive.",
+    "signature": "function isPalindrome(s) { }",
+    "solution": "function isPalindrome(s) {\n  s = s.toLowerCase().replace(/[^a-z0-9]/g,'');\n  let l=0, r=s.length-1;\n  while(l<r) { if(s[l]!==s[r]) return false; l++; r--; }\n  return true;\n}",
+    "concept": "Two pointers converging from edges: compare left and right, move inward. O(n) time, O(1) space (after cleaning). This is the same converging pattern used in array reversal, container with most water, and partitioning.",
+    "complexity": "O(n) time, O(1) space after preprocessing",
+    "pattern": "Two-pointer converging"
+  },
+  {
+    "title": "Frequency Counter",
+    "id": 25, "tier": 2, "category": "Hash Maps",
+    "problem": "Return object: keys=elements, values=count of appearances.",
+    "signature": "function frequency(arr) { }",
+    "solution": "function frequency(arr) {\n  const f = {};\n  for (const x of arr) f[x] = (f[x]||0)+1;\n  return f;\n}",
+    "concept": "Frequency map is the building block of hash map problems. Pattern: if key exists increment, else initialize to 1. The (f[x]||0)+1 idiom is essential JS. Used in anagrams, top-K, and counting problems.",
+    "complexity": "O(n) time, O(k) space where k = unique elements",
+    "pattern": "Frequency map"
+  },
+  {
+    "title": "Valid Parentheses",
+    "id": 26, "tier": 2, "category": "Stacks",
+    "problem": "Is the bracket string valid? (){}[] must match correctly.",
+    "signature": "function isValid(s) { }",
+    "solution": "function isValid(s) {\n  const st=[], m={')':'(','}':'{',']':'['};\n  for(const c of s){\n    if('({['.includes(c)) st.push(c);\n    else if(st.pop()!==m[c]) return false;\n  }\n  return st.length===0;\n}",
+    "concept": "Stack = LIFO. Perfect for nested matching: push opens, pop and compare on close. If stack empty at end AND every close matched, valid. This pattern extends to expression evaluation, HTML parsing, and syntax validation.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Stack matching"
+  },
+  {
+    "title": "Merge Sorted Arrays",
+    "id": 27, "tier": 2, "category": "Sorting",
+    "problem": "Merge two sorted arrays into one sorted array. No .sort().",
+    "signature": "function mergeSorted(a, b) { }",
+    "solution": "function mergeSorted(a, b) {\n  const r=[]; let i=0,j=0;\n  while(i<a.length&&j<b.length) a[i]<=b[j]?r.push(a[i++]):r.push(b[j++]);\n  while(i<a.length) r.push(a[i++]);\n  while(j<b.length) r.push(b[j++]);\n  return r;\n}",
+    "concept": "Two pointers on two sorted sequences: always pick the smaller. This is the merge step of merge sort. O(n+m) time. Handle remaining elements with two while loops.",
+    "complexity": "O(n+m) time, O(n+m) space",
+    "pattern": "Two-pointer merge"
+  },
+  {
+    "title": "Binary Search",
+    "id": 28, "tier": 2, "category": "Binary Search",
+    "problem": "Find index of target in sorted array. Return -1 if not found.",
+    "signature": "function binarySearch(arr, target) { }",
+    "solution": "function binarySearch(arr, target) {\n  let l=0, r=arr.length-1;\n  while(l<=r) {\n    const m=Math.floor((l+r)/2);\n    if(arr[m]===target) return m;\n    arr[m]<target ? l=m+1 : r=m-1;\n  }\n  return -1;\n}",
+    "concept": "O(log n): eliminate half the search space each step. Works on any monotonic function, not just sorted arrays. The l<=r condition and l=m+1/r=m-1 boundaries are error-prone — get them right and binary search works everywhere.",
+    "complexity": "O(log n) time, O(1) space",
+    "pattern": "Binary search"
+  },
+  {
+    "title": "Build Linked List",
+    "id": 29, "tier": 2, "category": "Linked Lists",
+    "problem": "Create ListNode class and build linked list from array. Return head.",
+    "signature": "class ListNode { }\nfunction buildList(arr) { }",
+    "solution": "class ListNode {\n  constructor(val) { this.val=val; this.next=null; }\n}\nfunction buildList(arr) {\n  if(!arr.length) return null;\n  const h=new ListNode(arr[0]); let c=h;\n  for(let i=1;i<arr.length;i++){c.next=new ListNode(arr[i]);c=c.next;}\n  return h;\n}",
+    "concept": "Simplest pointer-based structure. Each node has val and next pointer. Build by creating head then linking subsequent nodes. Foundation for stacks, queues, and graph adjacency lists.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Pointer chain construction"
+  },
+  {
+    "title": "Reverse Linked List",
+    "id": 30, "tier": 2, "category": "Linked Lists",
+    "problem": "Reverse singly linked list in place. Return new head.",
+    "signature": "function reverseList(head) { }",
+    "solution": "function reverseList(head) {\n  let prev=null, cur=head;\n  while(cur) { const n=cur.next; cur.next=prev; prev=cur; cur=n; }\n  return prev;\n}",
+    "concept": "Three-pointer technique: prev, current, next. Redirect each node's .next to point backward. Most common linked list interview question. Must save next before overwriting .next.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Three-pointer reversal"
+  },
+  {
+    "title": "Fibonacci with Memoization",
+    "id": 31, "tier": 2, "category": "Recursion",
+    "problem": "Nth Fibonacci with memoization. fib(0)=0, fib(1)=1.",
+    "signature": "function fib(n, memo = {}) { }",
+    "solution": "function fib(n, memo={}) {\n  if(n===0) return 0; if(n===1) return 1;\n  if(memo[n]!==undefined) return memo[n];\n  memo[n]=fib(n-1,memo)+fib(n-2,memo);\n  return memo[n];\n}",
+    "concept": "Memoization: cache results of expensive function calls. Transforms O(2^n) exponential recursion into O(n) linear by never recomputing the same subproblem. This IS dynamic programming — top-down approach.",
+    "complexity": "O(n) time, O(n) space",
+    "pattern": "Top-down DP / memoization"
+  },
+  {
+    "title": "Longest Substring Without Repeating",
+    "id": 32, "tier": 2, "category": "Sliding Window",
+    "problem": "Length of longest substring without repeating characters.",
+    "signature": "function lengthOfLongest(s) { }",
+    "solution": "function lengthOfLongest(s) {\n  const seen={}; let l=0,mx=0;\n  for(let r=0;r<s.length;r++){\n    if(seen[s[r]]!==undefined&&seen[s[r]]>=l) l=seen[s[r]]+1;\n    seen[s[r]]=r; mx=Math.max(mx,r-l+1);\n  }\n  return mx;\n}",
+    "concept": "Variable sliding window + hash map. Expand right pointer always. When duplicate found, jump left pointer past previous occurrence. Track max window size. Top interview question — understand this pattern deeply.",
+    "complexity": "O(n) time, O(k) space where k = charset size",
+    "pattern": "Variable sliding window + hash map"
+  },
+  {
+    "title": "Group Anagrams",
+    "id": 49, "tier": 2, "category": "Hash Maps",
+    "problem": "Group strings that are anagrams together.",
+    "signature": "function groupAnagrams(strs) { }",
+    "solution": "function groupAnagrams(strs) {\n  const m={};\n  for(const s of strs){const k=s.split('').sort().join('');if(!m[k])m[k]=[];m[k].push(s);}\n  return Object.values(m);\n}",
+    "concept": "Canonical form as hash key: sort each string to normalize anagrams to same key. Group by key. This 'normalize then group' pattern works for any equivalence relation.",
+    "complexity": "O(n * k log k) time where k = max string length",
+    "pattern": "Canonical key grouping"
+  },
+  {
+    "title": "Product Except Self",
+    "id": 50, "tier": 2, "category": "Arrays",
+    "problem": "Each element = product of all other elements. No division. O(n).",
+    "signature": "function productExceptSelf(nums) { }",
+    "solution": "function productExceptSelf(nums) {\n  const n=nums.length, r=new Array(n).fill(1);\n  let p=1; for(let i=0;i<n;i++){r[i]=p;p*=nums[i];}\n  let s=1; for(let i=n-1;i>=0;i--){r[i]*=s;s*=nums[i];}\n  return r;\n}",
+    "concept": "Prefix + suffix products: two passes. Left pass builds prefix products, right pass multiplies by suffix products. Each element gets product of everything to its left times everything to its right — without itself.",
+    "complexity": "O(n) time, O(1) extra space (output array not counted)",
+    "pattern": "Prefix-suffix sandwich"
+  },
+  {
+    "title": "Detect Cycle in Linked List",
+    "id": 51, "tier": 2, "category": "Linked Lists",
+    "problem": "Return true if linked list has a cycle.",
+    "signature": "function hasCycle(head) { }",
+    "solution": "function hasCycle(head) {\n  let s=head, f=head;\n  while(f&&f.next) { s=s.next; f=f.next.next; if(s===f) return true; }\n  return false;\n}",
+    "concept": "Floyd's tortoise and hare: slow pointer moves 1, fast moves 2. If cycle exists, they must meet. If no cycle, fast reaches end. O(n) time, O(1) space — no extra data structure needed.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "Fast/slow pointers"
+  },
+  {
+    "title": "Merge Sort",
+    "id": 52, "tier": 2, "category": "Sorting",
+    "problem": "Implement merge sort.",
+    "signature": "function mergeSort(arr) { }",
+    "solution": "function mergeSort(arr) {\n  if(arr.length<=1) return arr;\n  const m=Math.floor(arr.length/2);\n  const l=mergeSort(arr.slice(0,m)), r=mergeSort(arr.slice(m));\n  const res=[]; let i=0,j=0;\n  while(i<l.length&&j<r.length) l[i]<=r[j]?res.push(l[i++]):res.push(r[j++]);\n  while(i<l.length) res.push(l[i++]);\n  while(j<r.length) res.push(r[j++]);\n  return res;\n}",
+    "concept": "Divide and conquer: split in half, recursively sort each half, merge. O(n log n) guaranteed — stable sort. The merge step is the same two-pointer merge from challenge #27. Must-know for interviews.",
+    "complexity": "O(n log n) time, O(n) space",
+    "pattern": "Divide and conquer"
+  },
+  {
+    "title": "Path Sum",
+    "id": 53, "tier": 2, "category": "Binary Trees",
+    "problem": "Root-to-leaf path exists that sums to target?",
+    "signature": "function hasPathSum(root, target) { }",
+    "solution": "function hasPathSum(root, t) {\n  if(!root) return false;\n  if(!root.left&&!root.right) return root.val===t;\n  return hasPathSum(root.left,t-root.val)||hasPathSum(root.right,t-root.val);\n}",
+    "concept": "Reduce the target as you recurse: subtract current node's value. At leaf, check if remaining equals node value. This 'shrinking parameter' approach works for many recursive tree problems.",
+    "complexity": "O(n) time, O(h) space",
+    "pattern": "Recursive parameter reduction"
+  },
+  {
+    "title": "Kadane's Algorithm (Max Subarray)",
+    "id": 54, "tier": 2, "category": "Arrays",
+    "problem": "Maximum sum of any contiguous subarray. Array can have negatives.",
+    "signature": "function maxSubarray(nums) { }",
+    "solution": "function maxSubarray(nums) {\n  let cur=nums[0], mx=nums[0];\n  for(let i=1;i<nums.length;i++){cur=Math.max(nums[i],cur+nums[i]);mx=Math.max(mx,cur);}\n  return mx;\n}",
+    "concept": "At each position: extend current subarray or start fresh. If current sum becomes negative, starting fresh is always better. This is DP as a simple loop — cur is the state, the max() decision is the transition.",
+    "complexity": "O(n) time, O(1) space",
+    "pattern": "DP as loop (Kadane's)"
+  },
+  {
+    "title": "First Unique Character",
+    "id": 55, "tier": 2, "category": "Hash Maps",
+    "problem": "Index of first non-repeating character. -1 if none.",
+    "signature": "function firstUnique(s) { }",
+    "solution": "function firstUnique(s) {\n  const f={};\n  for(const c of s) f[c]=(f[c]||0)+1;\n  for(let i=0;i<s.length;i++) if(f[s[i]]===1) return i;\n  return -1;\n}",
+    "concept": "Two-pass frequency pattern: first pass counts, second pass finds first with count 1. Two passes is fine — still O(n). This pattern separates data collection from decision making.",
+    "complexity": "O(n) time, O(k) space",
+    "pattern": "Two-pass frequency"
+  },
+  {
+    "title": "Queue From Two Stacks",
+    "id": 56, "tier": 2, "category": "Stacks",
+    "problem": "Implement FIFO queue using two stacks.",
+    "signature": "class MyQueue { enqueue(val){} dequeue(){} }",
+    "solution": "class MyQueue {\n  constructor() { this.s1=[]; this.s2=[]; }\n  enqueue(v) { this.s1.push(v); }\n  dequeue() {\n    if(!this.s2.length) while(this.s1.length) this.s2.push(this.s1.pop());\n    return this.s2.pop();\n  }\n}",
+    "concept": "Reversing a stack gives FIFO order. Lazy transfer: only move s1→s2 when s2 is empty. Amortized O(1) per operation because each element is moved at most twice.",
+    "complexity": "O(1) amortized per operation",
+    "pattern": "Data structure simulation"
+  }
+]
